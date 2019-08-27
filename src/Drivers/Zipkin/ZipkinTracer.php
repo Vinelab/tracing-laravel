@@ -22,6 +22,7 @@ use Vinelab\Tracing\Drivers\Zipkin\Injectors\VinelabHttpInjector;
 use Vinelab\Tracing\Drivers\Zipkin\Injectors\ZipkinInjector;
 use Vinelab\Tracing\Exceptions\MissingTraceContextException;
 use Vinelab\Tracing\Exceptions\UnregisteredFormatException;
+use Vinelab\Tracing\Exceptions\UnresolvedCollectorIpException;
 use Vinelab\Tracing\Propagation\Formats;
 use Zipkin\Endpoint;
 use Zipkin\Reporter;
@@ -325,7 +326,9 @@ class ZipkinTracer implements Tracer
     protected function createEndpoint(): Endpoint
     {
         if (strpos($this->host, ":") === false) {
-            return Endpoint::create($this->serviceName, gethostbyname($this->host), null, $this->port);
+            $ipv4 = filter_var($this->host, FILTER_VALIDATE_IP) ? $this->host : $this->resolveCollectorIp($this->host);
+
+            return Endpoint::create($this->serviceName, $ipv4, null, $this->port);
         }
 
         return Endpoint::create($this->serviceName, null, $this->host, $this->port);
@@ -384,5 +387,20 @@ class ZipkinTracer implements Tracer
         }
 
         return $extractor;
+    }
+
+    /**
+     * @param  string  $host
+     * @return string
+     */
+    protected function resolveCollectorIp(string $host): string
+    {
+        $ipv4 = gethostbyname($host);
+
+        if ($ipv4 == $host) {
+            throw new UnresolvedCollectorIpException("Unable to resolve collector's IP address from hostname $host");
+        }
+
+        return $ipv4;
     }
 }
