@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 use Vinelab\Tracing\Middleware\TraceRequests;
 use Vinelab\Tracing\Tests\Fixtures\NoopReporter;
 
-class MiddlewareTest extends TestCase
+class TraceRequestsTest extends TestCase
 {
     use InteractsWithZipkin;
 

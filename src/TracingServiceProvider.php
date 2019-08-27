@@ -2,9 +2,11 @@
 
 namespace Vinelab\Tracing;
 
+use Illuminate\Console\Events\CommandStarting;
 use Illuminate\Support\ServiceProvider;
 use Vinelab\Tracing\Contracts\Tracer;
 use Vinelab\Tracing\Facades\Trace;
+use Vinelab\Tracing\Listeners\TraceCommand;
 
 class TracingServiceProvider extends ServiceProvider
 {
@@ -20,6 +22,8 @@ class TracingServiceProvider extends ServiceProvider
                 __DIR__.'/../config/tracing.php' => config_path('tracing.php'),
             ]);
         }
+
+        $this->app['events']->listen(CommandStarting::class, TraceCommand::class);
 
         $this->app->terminating(function () {
             $rootSpan = Trace::getRootSpan();
