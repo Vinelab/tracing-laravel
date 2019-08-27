@@ -53,7 +53,7 @@ See [OpenTracing spec](https://opentracing.io/specification/) for more details o
 
 ## Requirements
 
-This package requires **PHP >= 7.1** and **Laravel 5.4 or later**.
+This package requires **PHP >= 7.1** and **Laravel 5.5 or later**.
 
 ## Installation
 
