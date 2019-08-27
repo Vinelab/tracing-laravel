@@ -63,12 +63,6 @@ First, install the package via Composer:
 composer require vinelab/tracing-laravel
 ```
 
-**Laravel 5.4** users will also need to add the service provider to the `providers` array in `config/app.php`:
-
-```php
-Vinelab\Tracing\TracingServiceProvider::class,
-```
-
 After installation, you can publish the package configuration using the `vendor:publish` command. This command will publish the `tracing.php` configuration file to your config directory:
 
 ```sh
