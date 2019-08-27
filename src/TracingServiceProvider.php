@@ -17,7 +17,7 @@ class TracingServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                __DIR__.'../config/tracing.php' => config_path('tracing.php'),
+                __DIR__.'/../config/tracing.php' => config_path('tracing.php'),
             ]);
         }
 
