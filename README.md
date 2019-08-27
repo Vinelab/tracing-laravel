@@ -16,6 +16,7 @@
   - [Flushing Spans](#flushing-spans)
   - [Logging Integration](#logging-integration)
   - [Middleware](#middleware)
+  - [Console Commands](#console-commands)
   - [Context Propagation](#context-propagation)
 - [Custom Drivers](#custom-drivers)
   - [Writing New Driver](#writing-new-driver)
@@ -243,6 +244,21 @@ You can override the default name of the span in the controller:
 
 ```php
 Trace::getRootSpan()->setName('Create Order')
+```
+
+### Console Commands
+
+If you want to trace select console commands, make them implement `Vinelab\Tracing\Contracts\ShouldBeTraced` interface, indicating that we should start spans for the command.
+
+The trace will include the following **tags** on a root span:
+
+- `type` (cli)
+- `argv`
+
+You can override the default name of the span in the command itself:
+
+```php
+Trace::getRootSpan()->setName('Mark Orders Expired')
 ```
 
 ### Context Propagation
