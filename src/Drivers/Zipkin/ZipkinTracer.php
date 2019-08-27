@@ -20,7 +20,6 @@ use Vinelab\Tracing\Drivers\Zipkin\Injectors\PsrRequestInjector;
 use Vinelab\Tracing\Drivers\Zipkin\Injectors\TextMapInjector;
 use Vinelab\Tracing\Drivers\Zipkin\Injectors\VinelabHttpInjector;
 use Vinelab\Tracing\Drivers\Zipkin\Injectors\ZipkinInjector;
-use Vinelab\Tracing\Exceptions\MissingTraceContextException;
 use Vinelab\Tracing\Exceptions\UnregisteredFormatException;
 use Vinelab\Tracing\Exceptions\UnresolvedCollectorIpException;
 use Vinelab\Tracing\Propagation\Formats;
@@ -241,13 +240,11 @@ class ZipkinTracer implements Tracer
     {
         $span = $this->getCurrentSpan();
 
-        if (!$span) {
-            throw new MissingTraceContextException('Cannot obtain context because there is no active span');
+        if ($span) {
+            $this->resolveInjector($format)
+                ->setPropagation($this->tracing->getPropagation())
+                ->inject($span->getContext(), $carrier);
         }
-
-        $this->resolveInjector($format)
-            ->setPropagation($this->tracing->getPropagation())
-            ->inject($span->getContext(), $carrier);
 
         return $carrier;
     }

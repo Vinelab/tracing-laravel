@@ -7,7 +7,6 @@ use Vinelab\Tracing\Contracts\Injector;
 use Vinelab\Tracing\Contracts\Span;
 use Vinelab\Tracing\Contracts\SpanContext;
 use Vinelab\Tracing\Contracts\Tracer;
-use Vinelab\Tracing\Exceptions\MissingTraceContextException;
 
 class NullTracer implements Tracer
 {
@@ -97,12 +96,6 @@ class NullTracer implements Tracer
      */
     public function inject($carrier, string $format)
     {
-        $span = $this->getCurrentSpan();
-
-        if (!$span) {
-            throw new MissingTraceContextException('Cannot obtain context because there is no active span');
-        }
-
         return $carrier;
     }
 
