@@ -41,7 +41,7 @@ class TraceCommand
      */
     public function handle(CommandStarting $event)
     {
-        if ($this->shouldTraceCommand($event->command)) {
+        if ($event->command && $this->shouldTraceCommand($event->command)) {
             $span = $this->tracer->startSpan('Console Command');
 
             $span->tag('type', 'cli');
