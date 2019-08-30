@@ -55,15 +55,41 @@ class TraceRequestsTest extends TestCase
         }));
     }
 
+    /** @test */
+    public function disable_tracing_for_specified_paths()
+    {
+        $reporter = Mockery::spy(NoopReporter::class);
+        $tracer = $this->createTracer($reporter);
+
+        $request = Request::create('/users/1', 'GET', [], [], [], []);
+
+        $middleware = new TraceRequests($tracer, $this->mockConfig(['users/*']));
+        $middleware->handle($request, function ($req) {});
+        $middleware->terminate($request, new JsonResponse);
+
+        $tracer->flush();
+
+        $reporter->shouldHaveReceived('report')->with(Mockery::on(function ($spans) {
+            $this->assertEmpty($spans);
+
+            return true;
+        }));
+    }
+
     /**
+     * @param  array  $excludedPaths
      * @return Repository|Mockery\LegacyMockInterface|Mockery\MockInterface
      */
-    protected function mockConfig()
+    protected function mockConfig(array $excludedPaths = [])
     {
         $config = Mockery::mock(Repository::class);
         $config->shouldReceive('get')
-            ->with('tracing.logging.content_types')
+            ->with('tracing.middleware.payload.content_types')
             ->andReturn(['application/json']);
+
+        $config->shouldReceive('get')
+            ->with('tracing.middleware.excluded_paths')
+            ->andReturn($excludedPaths);
 
         return $config;
     }

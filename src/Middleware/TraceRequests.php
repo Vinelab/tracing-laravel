@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Vinelab\Http\Response;
 use Vinelab\Tracing\Contracts\Span;
 use Vinelab\Tracing\Contracts\Tracer;
@@ -43,11 +44,13 @@ class TraceRequests
      */
     public function handle(Request $request, Closure $next)
     {
-        $spanContext = $this->tracer->extract($request, Formats::ILLUMINATE_HTTP);
+        if (!$this->shouldBeExcluded($request->path())) {
+            $spanContext = $this->tracer->extract($request, Formats::ILLUMINATE_HTTP);
 
-        $span = $this->tracer->startSpan('Http Request', $spanContext);
+            $span = $this->tracer->startSpan('Http Request', $spanContext);
 
-        $this->tagRequestData($span, $request);
+            $this->tagRequestData($span, $request);
+        }
 
         return $next($request);
     }
@@ -78,7 +81,7 @@ class TraceRequests
         $span->tag('request_headers', strval($request->headers));
         $span->tag('request_ip', $request->ip());
 
-        if (in_array($request->headers->get('Content_Type'), $this->config->get('tracing.logging.content_types'))) {
+        if (in_array($request->headers->get('Content_Type'), $this->config->get('tracing.middleware.payload.content_types'))) {
             $span->tag('request_input', json_encode($request->input()));
         }
     }
@@ -97,8 +100,23 @@ class TraceRequests
         $span->tag('response_status', strval($response->getStatusCode()));
         $span->tag('response_headers', strval($response->headers));
 
-        if (in_array($response->headers->get('Content_Type'), $this->config->get('tracing.logging.content_types'))) {
+        if (in_array($response->headers->get('Content_Type'), $this->config->get('tracing.middleware.payload.content_types'))) {
             $span->tag('response_content', $response->content());
         }
+    }
+
+    /**
+     * @param  string  $path
+     * @return bool
+     */
+    protected function shouldBeExcluded(string $path): bool
+    {
+        foreach ($this->config->get('tracing.middleware.excluded_paths') as $excludedPath) {
+            if (Str::is($excludedPath, $path)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
