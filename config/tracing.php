@@ -6,9 +6,15 @@ return [
 
     'service_name' => env('TRACING_SERVICE_NAME', 'example'),
 
-    'logging' => [
-        'content_types' => [
-            'application/json',
+    'middleware' => [
+        'excluded_paths' => [
+            //
+        ],
+
+        'payload' => [
+            'content_types' => [
+                'application/json',
+            ],
         ],
     ],
 
