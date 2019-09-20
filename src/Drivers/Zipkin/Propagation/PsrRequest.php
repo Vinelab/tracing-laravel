@@ -17,7 +17,7 @@ class PsrRequest implements Getter, Setter
      * @param  string  $key
      * @return string|null
      */
-    public function get($carrier, string $key): ?string
+    public function get($carrier, $key)
     {
         if ($carrier instanceof RequestInterface) {
             $headers = $carrier->getHeader(strtolower($key));
@@ -35,7 +35,7 @@ class PsrRequest implements Getter, Setter
      * @param  string  $value
      * @return void
      */
-    public function put(&$carrier, string $key, string $value): void
+    public function put(&$carrier, $key, $value)
     {
         if ($key === '') {
             throw InvalidPropagationKey::forEmptyKey();
