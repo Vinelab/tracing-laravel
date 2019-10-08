@@ -11,6 +11,10 @@ return [
             //
         ],
 
+        'allowed_headers' => [
+            '*'
+        ],
+
         'payload' => [
             'content_types' => [
                 'application/json',

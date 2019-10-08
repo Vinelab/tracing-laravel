@@ -5,6 +5,7 @@ namespace Vinelab\Tracing\Tests\Zipkin;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Route;
 use Illuminate\Support\Arr;
 use Mockery;
 use PHPUnit\Framework\TestCase;
@@ -21,16 +22,21 @@ class TraceRequestsTest extends TestCase
         $reporter = Mockery::spy(NoopReporter::class);
         $tracer = $this->createTracer($reporter);
 
-        $request = Request::create('/example?token=secret', 'POST', [], [], [], [], json_encode([
+        $request = Request::create('/shipments/3242?token=secret', 'POST', [], [], [], [], json_encode([
             'data' => 'Catherine Dupuy'
         ]));
         $request->headers->set('Content-Type', 'application/json');
+        $request->setRouteResolver(function () {
+            return new Route('POST', '/shipments/{id}', function () {
+                return new JsonResponse();
+            });
+        });
 
         $response = new JsonResponse([
             'message' => 'Unprocessable Entity'
         ], 422);
 
-        $middleware = new TraceRequests($tracer, $this->mockConfig());
+        $middleware = new TraceRequests($tracer, $this->mockConfig([], ['Content-Type']));
         $middleware->handle($request, function ($req) {});
         $middleware->terminate($request, $response);
         $tracer->flush();
@@ -38,11 +44,11 @@ class TraceRequestsTest extends TestCase
         $reporter->shouldHaveReceived('report')->with(Mockery::on(function ($spans) {
             $span = $this->shiftSpan($spans);
 
-            $this->assertEquals('Http Request', Arr::get($span, 'name'));
+            $this->assertEquals('POST /shipments/{id}', Arr::get($span, 'name'));
             $this->assertEquals('http', Arr::get($span, 'tags.type'));
             $this->assertEquals('POST', Arr::get($span, 'tags.request_method'));
-            $this->assertEquals('example', Arr::get($span, 'tags.request_path'));
-            $this->assertEquals('/example?token=secret', Arr::get($span, 'tags.request_uri'));
+            $this->assertEquals('shipments/3242', Arr::get($span, 'tags.request_path'));
+            $this->assertEquals('/shipments/3242?token=secret', Arr::get($span, 'tags.request_uri'));
             $this->assertContains('application/json', Arr::get($span, 'tags.request_headers'));
             $this->assertContains('Catherine Dupuy', Arr::get($span, 'tags.request_input'));
             $this->assertEquals('127.0.0.1', Arr::get($span, 'tags.request_ip'));
@@ -78,9 +84,10 @@ class TraceRequestsTest extends TestCase
 
     /**
      * @param  array  $excludedPaths
+     * @param  array  $allowedHeaders
      * @return Repository|Mockery\LegacyMockInterface|Mockery\MockInterface
      */
-    protected function mockConfig(array $excludedPaths = [])
+    protected function mockConfig(array $excludedPaths = [], $allowedHeaders = [])
     {
         $config = Mockery::mock(Repository::class);
         $config->shouldReceive('get')
@@ -90,6 +97,10 @@ class TraceRequestsTest extends TestCase
         $config->shouldReceive('get')
             ->with('tracing.middleware.excluded_paths')
             ->andReturn($excludedPaths);
+
+        $config->shouldReceive('get')
+            ->with('tracing.middleware.allowed_headers')
+            ->andReturn($allowedHeaders);
 
         return $config;
     }
