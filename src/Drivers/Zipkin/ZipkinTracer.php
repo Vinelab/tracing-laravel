@@ -10,11 +10,13 @@ use Vinelab\Tracing\Contracts\Span;
 use Vinelab\Tracing\Contracts\SpanContext;
 use Vinelab\Tracing\Contracts\Tracer;
 use Vinelab\Tracing\Drivers\Zipkin\Extractors\AMQPExtractor;
+use Vinelab\Tracing\Drivers\Zipkin\Extractors\GooglePubSubExtractor;
 use Vinelab\Tracing\Drivers\Zipkin\Extractors\IlluminateHttpExtractor;
 use Vinelab\Tracing\Drivers\Zipkin\Extractors\PsrRequestExtractor;
 use Vinelab\Tracing\Drivers\Zipkin\Extractors\TextMapExtractor;
 use Vinelab\Tracing\Drivers\Zipkin\Extractors\ZipkinExtractor;
 use Vinelab\Tracing\Drivers\Zipkin\Injectors\AMQPInjector;
+use Vinelab\Tracing\Drivers\Zipkin\Injectors\GooglePubSubInjector;
 use Vinelab\Tracing\Drivers\Zipkin\Injectors\IlluminateHttpInjector;
 use Vinelab\Tracing\Drivers\Zipkin\Injectors\PsrRequestInjector;
 use Vinelab\Tracing\Drivers\Zipkin\Injectors\TextMapInjector;
@@ -345,6 +347,7 @@ class ZipkinTracer implements Tracer
         $this->registerExtractionFormat(Formats::PSR_REQUEST, new PsrRequestExtractor());
         $this->registerExtractionFormat(Formats::ILLUMINATE_HTTP, new IlluminateHttpExtractor());
         $this->registerExtractionFormat(Formats::AMQP, new AMQPExtractor());
+        $this->registerExtractionFormat(Formats::GOOGLE_PUBSUB, new GooglePubSubExtractor());
     }
 
     protected function registerDefaultInjectionFormats(): void
@@ -354,6 +357,7 @@ class ZipkinTracer implements Tracer
         $this->registerInjectionFormat(Formats::ILLUMINATE_HTTP, new IlluminateHttpInjector());
         $this->registerInjectionFormat(Formats::AMQP, new AMQPInjector());
         $this->registerInjectionFormat(Formats::VINELAB_HTTP, new VinelabHttpInjector());
+        $this->registerInjectionFormat(Formats::GOOGLE_PUBSUB, new GooglePubSubInjector());
     }
 
     /**

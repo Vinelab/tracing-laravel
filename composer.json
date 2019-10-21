@@ -21,6 +21,7 @@
         "ramsey/uuid": "~3.0"
     },
     "require-dev": {
+        "google/cloud-pubsub": "^1.18",
         "guzzlehttp/psr7": "~1.0",
         "mockery/mockery": "~1.0",
         "php-amqplib/php-amqplib": "~2.8",

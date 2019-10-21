@@ -276,6 +276,7 @@ $spanContext = Trace::extract($carrier, Formats::TEXT_MAP);
 $spanContext = Trace::extract($carrier, Formats::PSR_REQUEST);
 $spanContext = Trace::extract($carrier, Formats::ILLUMINATE_HTTP);
 $spanContext = Trace::extract($carrier, Formats::AMQP);
+$spanContext = Trace::extract($carrier, Formats::GOOGLE_PUBSUB);
 ```
 
 You may also add your own format using `registerExtractionFormat` method.
@@ -310,6 +311,7 @@ $carrier = Trace::inject($carrier, Formats::TEXT_MAP);
 $carrier = Trace::inject($carrier, Formats::PSR_REQUEST);
 $carrier = Trace::inject($carrier, Formats::ILLUMINATE_HTTP);
 $carrier = Trace::inject($carrier, Formats::AMQP);
+$carrier = Trace::inject($carrier, Formats::GOOGLE_PUBSUB);
 $carrier = Trace::inject($carrier, Formats::VINELAB_HTTP);
 ```
 
