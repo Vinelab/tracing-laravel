@@ -2,6 +2,7 @@
 
 namespace Vinelab\Tracing\Tests\Zipkin;
 
+use Google\Cloud\PubSub\Message;
 use GuzzleHttp\Psr7\Request as PsrRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -305,6 +306,27 @@ class TracerTest extends TestCase
         $this->assertArrayHasKey('x-b3-flags', $arr);
 
         $this->assertValidTraceContext($tracer->extract($message, Formats::AMQP));
+    }
+
+    /** @test */
+    public function propagate_google_pubsub()
+    {
+        $tracer = $this->createTracer(new NoopReporter());
+
+        $tracer->startSpan('Example');
+
+        $msgBody = $tracer->inject([
+            'data' => '',
+        ], Formats::GOOGLE_PUBSUB);
+
+        $arr = Arr::get($msgBody, 'attributes', []);
+
+        $this->assertArrayHasKey('x-b3-traceid', $arr);
+        $this->assertArrayHasKey('x-b3-spanid', $arr);
+        $this->assertArrayHasKey('x-b3-sampled', $arr);
+        $this->assertArrayHasKey('x-b3-flags', $arr);
+
+        $this->assertValidTraceContext($tracer->extract(new Message($msgBody, []), Formats::GOOGLE_PUBSUB));
     }
 
     /** @test */

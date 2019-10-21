@@ -25,6 +25,11 @@ class Formats
     public const AMQP = 'amqp';
 
     /**
+     * For AMQP messages
+     */
+    public const GOOGLE_PUBSUB = 'google_pubsub';
+
+    /**
      * For Vinelab/http request headers
      */
     public const VINELAB_HTTP = 'vinelab_http';
