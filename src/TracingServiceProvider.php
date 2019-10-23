@@ -3,6 +3,7 @@
 namespace Vinelab\Tracing;
 
 use Illuminate\Console\Events\CommandStarting;
+use Illuminate\Log\Events\MessageLogged;
 use Illuminate\Support\ServiceProvider;
 use Vinelab\Tracing\Contracts\Tracer;
 use Vinelab\Tracing\Facades\Trace;
@@ -25,13 +26,14 @@ class TracingServiceProvider extends ServiceProvider
 
         $this->app['events']->listen(CommandStarting::class, TraceCommand::class);
 
-        $this->app->terminating(function () {
-            $rootSpan = Trace::getRootSpan();
-
-            if ($rootSpan) {
-                $rootSpan->finish();
+        $this->app['events']->listen(MessageLogged::class, function (MessageLogged $event) {
+            if ($event->level == 'error') {
+                optional(Trace::getRootSpan())->tag('error', 'true');
             }
+        });
 
+        $this->app->terminating(function () {
+            optional(Trace::getRootSpan())->finish();
             Trace::flush();
         });
     }
