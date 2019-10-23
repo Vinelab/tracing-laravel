@@ -85,9 +85,10 @@ class TraceRequestsTest extends TestCase
     /**
      * @param  array  $excludedPaths
      * @param  array  $allowedHeaders
+     * @param  array  $sensitiveHeaders
      * @return Repository|Mockery\LegacyMockInterface|Mockery\MockInterface
      */
-    protected function mockConfig(array $excludedPaths = [], $allowedHeaders = [])
+    protected function mockConfig(array $excludedPaths = [], $allowedHeaders = [], array $sensitiveHeaders = [])
     {
         $config = Mockery::mock(Repository::class);
         $config->shouldReceive('get')
@@ -101,6 +102,10 @@ class TraceRequestsTest extends TestCase
         $config->shouldReceive('get')
             ->with('tracing.middleware.allowed_headers')
             ->andReturn($allowedHeaders);
+
+        $config->shouldReceive('get')
+            ->with('tracing.middleware.sensitive_headers')
+            ->andReturn($sensitiveHeaders);
 
         return $config;
     }

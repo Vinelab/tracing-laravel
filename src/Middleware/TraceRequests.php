@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\HeaderBag;
 use Vinelab\Http\Response;
@@ -131,17 +132,41 @@ class TraceRequests
      */
     protected function filterHeaders(HeaderBag $headers): array
     {
+        return $this->hideSensitiveHeaders($this->filterAllowedHeaders(collect($headers)))->all();
+    }
+
+    /**
+     * @param  Collection  $headers
+     * @return Collection
+     */
+    protected function filterAllowedHeaders(Collection $headers): Collection
+    {
         $allowedHeaders = $this->config->get('tracing.middleware.allowed_headers');
 
         if (in_array('*', $allowedHeaders)) {
-            return $headers->all();
+            return $headers;
         }
 
-        $whitelist = array_map('strtolower', $allowedHeaders);
+        $normalizedHeaders = array_map('strtolower', $allowedHeaders);
 
-        return collect($headers)->filter(function ($value, $name) use ($whitelist) {
-            return in_array($name, $whitelist);
-        })->all();
+        return $headers->filter(function ($value, $name) use ($normalizedHeaders) {
+            return in_array($name, $normalizedHeaders);
+        });
+    }
+
+    protected function hideSensitiveHeaders(Collection $headers): Collection
+    {
+        $sensitiveHeaders = $this->config->get('tracing.middleware.sensitive_headers');
+
+        $normalizedHeaders = array_map('strtolower', $sensitiveHeaders);
+
+        $headers->transform(function ($value, $name) use ($normalizedHeaders) {
+            return in_array($name, $normalizedHeaders)
+                ? 'This value is hidden because it contains sensitive info'
+                : $value;
+        });
+
+        return $headers;
     }
 
     /**
