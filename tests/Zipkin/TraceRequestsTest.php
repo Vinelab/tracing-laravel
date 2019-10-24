@@ -36,7 +36,7 @@ class TraceRequestsTest extends TestCase
             'message' => 'Unprocessable Entity'
         ], 422);
 
-        $middleware = new TraceRequests($tracer, $this->mockConfig([], ['Content-Type']));
+        $middleware = new TraceRequests($tracer, $this->mockConfig([], ['Content-Type', 'user-agent'], ['user-agent']));
         $middleware->handle($request, function ($req) {});
         $middleware->terminate($request, $response);
         $tracer->flush();
@@ -50,6 +50,7 @@ class TraceRequestsTest extends TestCase
             $this->assertEquals('shipments/3242', Arr::get($span, 'tags.request_path'));
             $this->assertEquals('/shipments/3242?token=secret', Arr::get($span, 'tags.request_uri'));
             $this->assertContains('application/json', Arr::get($span, 'tags.request_headers'));
+            $this->assertContains('This value is hidden because it contains sensitive info', Arr::get($span, 'tags.request_headers'));
             $this->assertContains('Catherine Dupuy', Arr::get($span, 'tags.request_input'));
             $this->assertEquals('127.0.0.1', Arr::get($span, 'tags.request_ip'));
 

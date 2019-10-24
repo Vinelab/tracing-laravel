@@ -162,7 +162,7 @@ class TraceRequests
 
         $headers->transform(function ($value, $name) use ($normalizedHeaders) {
             return in_array($name, $normalizedHeaders)
-                ? 'This value is hidden because it contains sensitive info'
+                ? ['This value is hidden because it contains sensitive info']
                 : $value;
         });
 
