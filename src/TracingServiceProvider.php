@@ -26,11 +26,13 @@ class TracingServiceProvider extends ServiceProvider
 
         $this->app['events']->listen(CommandStarting::class, TraceCommand::class);
 
-        $this->app['events']->listen(MessageLogged::class, function (MessageLogged $event) {
-            if ($event->level == 'error') {
-                optional(Trace::getRootSpan())->tag('error', 'true');
-            }
-        });
+        if ($this->app['config']['tracing.errors']) {
+            $this->app['events']->listen(MessageLogged::class, function (MessageLogged $event) {
+                if ($event->level == 'error') {
+                    optional(Trace::getRootSpan())->tag('error', 'true');
+                }
+            });
+        }
 
         $this->app->terminating(function () {
             optional(Trace::getRootSpan())->finish();
