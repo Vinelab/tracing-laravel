@@ -62,6 +62,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Errors
+    |--------------------------------------------------------------------------
+    |
+    | Whether you want to automatically tag span with error=true
+    | to denote the operation represented by the Span has failed
+    | when error message was logged
+    |
+    */
+
+    'errors' => true,
+
+    /*
+    |--------------------------------------------------------------------------
     | Zipkin
     |--------------------------------------------------------------------------
     |
