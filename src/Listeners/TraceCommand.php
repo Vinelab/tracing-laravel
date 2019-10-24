@@ -58,6 +58,10 @@ class TraceCommand
         /** @var Command $command */
         $command = Arr::get($this->artisan->all(), $command);
 
+        if (!$command) {
+            return false;
+        }
+
         $interfaces = class_implements($command);
 
         return isset($interfaces[ShouldBeTraced::class]);
