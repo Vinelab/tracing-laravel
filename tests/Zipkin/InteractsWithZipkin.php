@@ -13,6 +13,7 @@ trait InteractsWithZipkin
      * @param  string|null  $serviceName
      * @param  string  $host
      * @param  int  $port
+     * @param  int  $requestTimeout
      * @param  bool  $usesTraceId128bits
      * @return ZipkinTracer
      */
@@ -21,10 +22,11 @@ trait InteractsWithZipkin
         string $serviceName = 'example',
         string $host = 'localhost',
         int $port = 9411,
+        int $requestTimeout = 5,
         bool $usesTraceId128bits = false
     ): ZipkinTracer
     {
-        $tracer = new ZipkinTracer($serviceName, $host, $port, $usesTraceId128bits, $reporter);
+        $tracer = new ZipkinTracer($serviceName, $host, $port, $usesTraceId128bits, $requestTimeout, $reporter);
         $tracer->init();
 
         return $tracer;
