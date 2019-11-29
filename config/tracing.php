@@ -91,6 +91,7 @@ return [
         'options' => [
             '128bit' => false,
             'max_tag_len' => 1048576,
+            'request_timeout' => 5,
         ],
     ],
 

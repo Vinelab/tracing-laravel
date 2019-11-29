@@ -78,7 +78,7 @@ class TracerTest extends TestCase
     {
         $reporter = Mockery::spy(NoopReporter::class);
 
-        $tracer = $this->createTracer($reporter, 'example', 'localhost', 9411, true);
+        $tracer = $this->createTracer($reporter, 'example', 'localhost', 9411, 5, true);
         $tracer->startSpan('Example');
         $tracer->flush();
 

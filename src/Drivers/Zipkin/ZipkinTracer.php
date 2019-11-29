@@ -60,6 +60,11 @@ class ZipkinTracer implements Tracer
     protected $usesTraceId128bits;
 
     /**
+     * @var int|null
+     */
+    protected $requestTimeout;
+
+    /**
      * @var Reporter|null
      */
     protected $reporter;
@@ -100,6 +105,7 @@ class ZipkinTracer implements Tracer
      * @param  string  $host
      * @param  int  $port
      * @param  bool|null  $usesTraceId128bits
+     * @param  int|null  $requestTimeout
      * @param  Reporter|null  $reporter
      */
     public function __construct(
@@ -107,12 +113,14 @@ class ZipkinTracer implements Tracer
         string $host,
         int $port,
         ?bool $usesTraceId128bits = false,
+        ?int $requestTimeout = 5,
         ?Reporter $reporter = null
     ) {
         $this->serviceName = $serviceName;
         $this->host = $host;
         $this->port = $port;
         $this->usesTraceId128bits = $usesTraceId128bits;
+        $this->requestTimeout = $requestTimeout;
         $this->reporter = $reporter;
     }
 
@@ -312,7 +320,8 @@ class ZipkinTracer implements Tracer
     {
         if (!$this->reporter) {
             return new HttpReporter(null, [
-                'endpoint_url' => sprintf('http://%s:%s/api/v2/spans', $this->host, $this->port)
+                'endpoint_url' => sprintf('http://%s:%s/api/v2/spans', $this->host, $this->port),
+                'timeout' => $this->requestTimeout,
             ]);
         }
 
@@ -399,7 +408,11 @@ class ZipkinTracer implements Tracer
         $ipv4 = gethostbyname($host);
 
         if ($ipv4 == $host) {
-            throw new UnresolvedCollectorIpException("Unable to resolve collector's IP address from hostname $host");
+            $e = new UnresolvedCollectorIpException("Unable to resolve collector's IP address from hostname");
+
+            app('log')->warning($e->getMessage(), ['exception' => $e]);
+
+            return "127.0.0.1";
         }
 
         return $ipv4;
