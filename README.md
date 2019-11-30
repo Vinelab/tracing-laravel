@@ -28,10 +28,16 @@
 Distributed tracing is the process of tracking the activity resulting from a request to an application. With this feature, you can:
 
 - Trace the path of a request as it travels across a complex system
-- Discover the latency of the components along that path
+- Discover the latency of the components (services) along that path
 - Know which component in the path is creating a bottleneck
 - Inspect payloads that are being sent between components
-- Build execution graph for each component internals and more
+- Build execution graph for each separate component and more
+
+Simply put, distributed tracing is **a knowledge tool**. One of the most important perks of having it in your project is that deveopers can learn the system by simply following the traces it makes.
+
+See how Uber is using distributed tracing to make sense of large number of microservices and interactions within their product:
+
+[![](http://img.youtube.com/vi/WRntQsUajow/0.jpg)](http://www.youtube.com/watch?v=WRntQsUajow "")
 
 A distributed trace is composed of multiple spans, which represent time spent in services or resources of those services.
 
@@ -90,9 +96,17 @@ ZIPKIN_PORT=9411
 
 ### Jaeger
 
-Jaeger is not officially supported because of the lack of official instrumentation for PHP. However, you can still post spans to Jaeger collector using [Zipkin compatible HTTP endpoint](https://www.jaegertracing.io/docs/1.11/features/#backwards-compatibility-with-zipkin).
+Jaeger is not "officially" supported because of the lack of stable instrumentation for PHP.
 
----
+However, you can still post spans to Jaeger collector with Zipkin driver using [Zipkin compatible HTTP endpoint](https://www.jaegertracing.io/docs/1.11/features/#backwards-compatibility-with-zipkin). In fact, that's the recommended way to use this library since Jaeger's UI is just that much more convenient than Zipkin's.
+
+There are some downsides, however:
+- you won't be able to avail of some Jaeger specific features like contextualized logging since Zipkin only supports tags and time annotations
+- HTTP is your only choice of transport (no UDP option)
+
+We'll consider improving Jaeger support once its instrumetation matures.
+
+### Null
 
 The package also includes `null` driver that discards created spans.
 
@@ -235,7 +249,7 @@ The middleware adds the following **tags** on a root span:
 
 > Request and response body are only included for whitelisted content-types. See `logging.content_types` option in your `config/tracing.php`.
 
-You can override the default name of the span in the controller:
+You can override the default name of the span (which is `VERB /path/for/route`) in the controller:
 
 ```php
 Trace::getRootSpan()->setName('Create Order')
