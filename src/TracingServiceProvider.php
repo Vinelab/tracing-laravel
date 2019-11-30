@@ -4,6 +4,10 @@ namespace Vinelab\Tracing;
 
 use Illuminate\Console\Events\CommandStarting;
 use Illuminate\Log\Events\MessageLogged;
+use Illuminate\Queue\Events\JobFailed;
+use Illuminate\Queue\Events\JobProcessed;
+use Illuminate\Queue\Events\JobProcessing;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\ServiceProvider;
 use Vinelab\Tracing\Contracts\Tracer;
 use Vinelab\Tracing\Facades\Trace;
@@ -25,6 +29,19 @@ class TracingServiceProvider extends ServiceProvider
         }
 
         $this->app['events']->listen(CommandStarting::class, TraceCommand::class);
+
+        $this->app['events']->listen(
+            JobProcessing::class,
+            'Vinelab\Tracing\Listeners\QueueJobSubscriber@onJobProcessing'
+        );
+        $this->app['events']->listen(
+            JobProcessed::class,
+            'Vinelab\Tracing\Listeners\QueueJobSubscriber@onJobProcessed'
+        );
+        $this->app['events']->listen(
+            JobFailed::class,
+            'Vinelab\Tracing\Listeners\QueueJobSubscriber@onJobFailed'
+        );
 
         if ($this->app['config']['tracing.errors']) {
             $this->app['events']->listen(MessageLogged::class, function (MessageLogged $event) {

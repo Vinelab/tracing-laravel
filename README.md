@@ -17,6 +17,7 @@
   - [Logging Integration](#logging-integration)
   - [Middleware](#middleware)
   - [Console Commands](#console-commands)
+  - [Queue Jobs](#queue-jobs)
   - [Context Propagation](#context-propagation)
 - [Custom Drivers](#custom-drivers)
   - [Writing New Driver](#writing-new-driver)
@@ -242,18 +243,69 @@ Trace::getRootSpan()->setName('Create Order')
 
 ### Console Commands
 
-If you want to trace select console commands, make them implement `Vinelab\Tracing\Contracts\ShouldBeTraced` interface, indicating that we should start spans for the command.
+Let your console commsands be traced by adding `Vinelab\Tracing\Contracts\ShouldBeTraced` interface to your class.
 
-The trace will include the following **tags** on a root span:
+The container span will include the following tags:
 
 - `type` (cli)
 - `argv`
 
-You can override the default name of the span in the command itself:
+The span will be named after the console command. You can override the default name of the span in the command itself:
 
 ```php
 Trace::getRootSpan()->setName('Mark Orders Expired')
 ```
+
+### Queue Jobs
+
+Let your queue jobs be traced by adding `Vinelab\Tracing\Contracts\ShouldBeTraced` interface to your class.
+
+The container span will include the following tags:
+
+- `type` (queue)
+- `connection_name` (i.e. sync, redis etc.)
+- `queue_name`
+- `job_input`
+
+As the name implies, `job_input` allows you to view your job's contructor parameters as JSON. Serialization of objects to this JSON string can be controlled by implementing one of the following interfaces: `Arrayable`, `Jsonable`, `JsonSerializable`, or a `__toString` method. A fallback behavior is to print all your object's public properties.
+
+The span will be named after the queue job class. You can override the default name of the span in the job itself:
+
+```php
+app('tracing.queue.span')->setName('Process Podcast')
+```
+
+Note here that the queue span may not necessarily be the root span of the trace. You would usually want the queue to continue the trace from where it left of when the job was dispatched. You can achieve this by simply giving SpanContext to the job's constructor:
+
+```php
+class ProcessPodcast implements ShouldQueue
+{
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    protected $podcast;
+
+    protected $spanContext;
+
+    public function __construct(Podcast $podcast, SpanContext $spanContext)
+    {
+        $this->podcast = $podcast;
+        $this->spanContext = $spanContext;
+    }
+
+    public function handle(AudioProcessor $processor)
+    {
+        // Process uploaded podcast...
+    }
+}
+```
+
+The job above can be dispatched like so:
+
+```php
+ProcessPodcast::dispatch($podcast, Trace::getRootSpan()->getContext());
+```
+
+The rest will be handled automatically. Note that SpanContext will be excluded from logged `job_input`.
 
 ### Context Propagation
 
