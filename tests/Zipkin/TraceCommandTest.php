@@ -8,8 +8,8 @@ use Illuminate\Support\Arr;
 use Mockery;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Tests\Fixtures\DummyOutput;
 use Vinelab\Tracing\Listeners\TraceCommand;
+use Vinelab\Tracing\Tests\Fixtures\DummyOutput;
 use Vinelab\Tracing\Tests\Fixtures\ExampleCommand;
 use Vinelab\Tracing\Tests\Fixtures\NoopReporter;
 
@@ -36,7 +36,7 @@ class TraceCommandTest extends TestCase
         $reporter->shouldHaveReceived('report')->with(Mockery::on(function ($spans) {
             $span = $this->shiftSpan($spans);
 
-            $this->assertEquals('Console Command', Arr::get($span, 'name'));
+            $this->assertEquals('artisan example', Arr::get($span, 'name'));
             $this->assertEquals('cli', Arr::get($span, 'tags.type'));
             $this->assertContains('phpunit', Arr::get($span, 'tags.argv'));
 

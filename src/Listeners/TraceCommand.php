@@ -42,7 +42,7 @@ class TraceCommand
     public function handle(CommandStarting $event)
     {
         if ($event->command && $this->shouldTraceCommand($event->command)) {
-            $span = $this->tracer->startSpan('Console Command');
+            $span = $this->tracer->startSpan("artisan {$event->command}");
 
             $span->tag('type', 'cli');
             $span->tag('argv', implode(PHP_EOL, $_SERVER['argv']));
