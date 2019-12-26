@@ -283,6 +283,8 @@ The container span will include the following tags:
 
 As the name implies, `job_input` allows you to view your job's contructor parameters as JSON. Serialization of objects to this JSON string can be controlled by implementing one of the following interfaces: `Arrayable`, `Jsonable`, `JsonSerializable`, or a `__toString` method. A fallback behavior is to print all your object's public properties.
 
+> Constructor arguments must be saved as a class property with the same name (see ProcessPordact example below).
+
 The span will be named after the queue job class. You can override the default name of the span in the job itself:
 
 ```php

@@ -16,8 +16,9 @@ use Psr\Container\ContainerInterface;
 use ReflectionClass;
 use ReflectionParameter;
 use Vinelab\Tracing\Contracts\ShouldBeTraced;
+use Vinelab\Tracing\Contracts\Span;
 use Vinelab\Tracing\Contracts\SpanContext;
-use Vinelab\Tracing\Facades\Trace;
+use Vinelab\Tracing\Contracts\Tracer;
 
 class QueueJobSubscriber
 {
@@ -72,7 +73,8 @@ class QueueJobSubscriber
         if (in_array(ShouldBeTraced::class, class_implements($jobInstance))) {
             $jobInput = $this->retrieveQueueJobInput($jobInstance);
 
-            $span = Trace::startSpan(class_basename($job->resolveName()), $jobInput->first(function ($attr) {
+            /** @var Span $span */
+            $span = $this->app[Tracer::class]->startSpan(class_basename($job->resolveName()), $jobInput->first(function ($attr) {
                 return $attr instanceof SpanContext;
             }));
 
@@ -99,7 +101,7 @@ class QueueJobSubscriber
 
             // If it's a sync driver, the main process will flush, we don't want to do that prematurely
             if ($event->connectionName != 'sync') {
-                Trace::flush();
+                $this->app[Tracer::class]->flush();
             }
         }
     }
@@ -113,18 +115,17 @@ class QueueJobSubscriber
         $class = new ReflectionClass($jobInstance);
         $constructor = $class->getConstructor();
 
-        if ($constructor) {
-            return collect($constructor->getParameters())
-                ->mapWithKeys(function (ReflectionParameter $param) use ($class, $jobInstance) {
-                    $prop = $class->getProperty($param->name);
+        return collect(optional($constructor)->getParameters())
+            ->filter(function (ReflectionParameter $param) use ($class) {
+                return $class->hasProperty($param->name);
+            })
+            ->mapWithKeys(function (ReflectionParameter $param) use ($class, $jobInstance) {
+                $prop = $class->getProperty($param->name);
 
-                    $prop->setAccessible(true);
+                $prop->setAccessible(true);
 
-                    return [$param->name => $prop->getValue($jobInstance)];
-                });
-        } else {
-            return new Collection();
-        }
+                return [$param->name => $prop->getValue($jobInstance)];
+            });
     }
 
     /**
