@@ -1,5 +1,3 @@
-> **Disclaimer**: This package is new and may be considered unstable. Use in production at your own risk.
-
 # Laravel Tracing
 
 - [Introduction](#introduction)
