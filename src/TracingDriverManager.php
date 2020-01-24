@@ -13,7 +13,7 @@ class TracingDriverManager extends Manager
     /**
      * @var Repository
      */
-    private $config;
+    protected $config;
 
     /**
      * EngineManager constructor.
