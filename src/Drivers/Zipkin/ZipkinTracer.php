@@ -410,7 +410,8 @@ class ZipkinTracer implements Tracer
         if ($ipv4 == $host) {
             $e = new UnresolvedCollectorIpException("Unable to resolve collector's IP address from hostname");
 
-            app('log')->warning($e->getMessage(), ['exception' => $e]);
+            // Comment below line because it logs too much data. That occupies large memory and at the end it throws memory error.
+            //app('log')->warning($e->getMessage(), ['exception' => $e]);
 
             return "127.0.0.1";
         }
