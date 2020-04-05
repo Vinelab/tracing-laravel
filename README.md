@@ -270,7 +270,7 @@ Trace::getRootSpan()->setName('Mark Orders Expired')
 
 ### Queue Jobs
 
-Let your queue jobs be traced by adding `Vinelab\Tracing\Contracts\ShouldBeTraced` interface to your class.
+Let your queue jobs be traced by adding `Vinelab\Tracing\Contracts\ShouldBeTraced` interface to your job class.
 
 The container span will include the following tags:
 
@@ -320,6 +320,8 @@ ProcessPodcast::dispatch($podcast, Trace::getRootSpan()->getContext());
 ```
 
 The rest will be handled automatically. Note that SpanContext will be excluded from logged `job_input`.
+
+**This package doesn't automatically handle tracing of queued closures and queued event listeners.** You can still trace them manually by opening and closing spans. Improving support for these features might be considered for future versions of the package.
 
 ### Context Propagation
 
