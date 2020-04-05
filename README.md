@@ -92,6 +92,8 @@ ZIPKIN_HOST=localhost
 ZIPKIN_PORT=9411
 ```
 
+If the collector is unreachable via a given hostname, you might receive `UnresolvedCollectorIpException`. If you want to ignore these errors in production, simply edit your logging configuration to omit `debug` level messages.
+
 ### Jaeger
 
 Jaeger is not "officially" supported because of the lack of stable instrumentation for PHP.
