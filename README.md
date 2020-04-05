@@ -92,7 +92,7 @@ ZIPKIN_HOST=localhost
 ZIPKIN_PORT=9411
 ```
 
-If the collector is unreachable via a given hostname, you might see logs for `UnresolvedCollectorIpException`. If you want to ignore these errors in production, simply edit your logging configuration to omit `debug` level messages.
+If the collector is unreachable via a given hostname, you might see debug messages about that printed with each request. If you want to ignore these in production, simply edit your logging configuration to omit `debug` level messages.
 
 ### Jaeger
 
