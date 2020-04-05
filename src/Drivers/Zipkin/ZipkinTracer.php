@@ -408,9 +408,9 @@ class ZipkinTracer implements Tracer
         $ipv4 = gethostbyname($host);
 
         if ($ipv4 == $host) {
-            $e = new UnresolvedCollectorIpException("Unable to resolve collector's IP address from hostname");
+            $e = new UnresolvedCollectorIpException("Unable to resolve collector's IP address from hostname $host");
 
-            app('log')->warning($e->getMessage(), ['exception' => $e]);
+            app('log')->debug($e->getMessage(), ['exception' => $e]);
 
             return "127.0.0.1";
         }
