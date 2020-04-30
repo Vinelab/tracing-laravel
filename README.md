@@ -463,7 +463,7 @@ TRACING_DRIVER=jaeger
 
 ### Lucid Architecture
 
-This package includes optional `Vinelab\Tracing\Integration\Concerns\TraceLucidArchitecture` traits to enable tracing for [Lucid projects](https://github.com/lucid-architecture/laravel-microservice):
+This package includes optional `Vinelab\Tracing\Integration\Concerns\TracesLucidArchitecture` trait to enable tracing for [Lucid projects](https://github.com/lucid-architecture/laravel-microservice):
 
 ```php
 class TracingServiceProvider extends ServiceProvider
