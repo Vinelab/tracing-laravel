@@ -1,6 +1,6 @@
 <?php
 
-namespace Vinelab\Tracing\Traits;
+namespace Vinelab\Tracing\Integration\Concerns;
 
 use Illuminate\Log\Events\MessageLogged;
 use Illuminate\Support\Facades\Event;
@@ -10,17 +10,19 @@ use Lucid\Foundation\Events\OperationStarted;
 use Vinelab\Tracing\Facades\Trace;
 
 /**
- * Trait TraceLucidArchitecture
+ * Enables tracing for projects based on a Lucid Architecture
  *
- * Provides tracing configuration for projects based on Lucid Architecture
- *
- * https://github.com/lucid-architecture/laravel
- * https://packagist.org/packages/lucid-arch/laravel-foundation
- *
- * @package Vinelab\Tracing\Traits
+ * https://github.com/lucid-architecture/laravel-microservice
  */
-trait TraceLucidArchitecture
+trait TracesLucidArchitecture
 {
+    protected function traceLucidArchitecture()
+    {
+        $this->renameRootSpanBasedOnFeature();
+        $this->annotateRunningOperations();
+        $this->annotateRunningJobs();
+    }
+
     protected function renameRootSpanBasedOnFeature()
     {
         Event::listen(FeatureStarted::class, function (FeatureStarted $event) {
@@ -39,15 +41,6 @@ trait TraceLucidArchitecture
     {
         Event::listen(JobStarted::class, function (JobStarted $event) {
             optional(Trace::getRootSpan())->annotate($event->name);
-        });
-    }
-
-    protected function highlightErrors()
-    {
-        Event::listen(MessageLogged::class, function (MessageLogged $event) {
-            if ($event->level == 'error') {
-                optional(Trace::getRootSpan())->tag('error', 'true');
-            }
         });
     }
 }

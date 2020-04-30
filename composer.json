@@ -35,8 +35,8 @@
     },
     "suggest": {
         "php-amqplib/php-amqplib": "A pure PHP implementation of the AMQP protocol",
-        "vinelab/http": "Simple fault-tolerant HTTP client for sending and receiving JSON and XML",
-        "lucid-arch/laravel-foundation": "The Foundation of the Lucid Architecture project for Laravel"
+        "vinelab/http": "Fault-tolerant HTTP client for sending and receiving JSON and XML that we also support tracing for",
+        "lucid-arch/laravel-foundation": "Base package for the Lucid Architecture that we also support tracing for"
     },
     "autoload": {
         "psr-4": {
