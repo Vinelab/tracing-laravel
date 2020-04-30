@@ -20,6 +20,7 @@
 - [Custom Drivers](#custom-drivers)
   - [Writing New Driver](#writing-new-driver)
   - [Registering New Driver](#registering-new-driver)
+ - [Trace Traits](#trace-traits)
 
 ## Introduction
 
@@ -453,4 +454,38 @@ Once your driver has been registered, you may specify it as your tracing driver 
 
 ```
 TRACING_DRIVER=jaeger
+```
+
+
+### Trace Traits
+
+This package includes `\Vinelab\Tracing\Traits\TraceLucidArchitecture` and `\Vinelab\Tracing\Traits\TraceLucidArchitecture\TraceTrellisHttpRequests` traits to be used in a service provider that handle tracing configuration.
+
+The `\Vinelab\Tracing\Traits\TraceLucidArchitecture` trait provides tracing configuration for projects based on [Lucid Architecture](https://packagist.org/packages/lucid-arch/laravel-foundation).
+
+The `\Vinelab\Tracing\Traits\TraceTrellisHttpRequests` trait provides tracing configuration for  [Trellis http requests](https://github.com/Trelllis/service-clients).
+
+Usage example:
+```php
+class TracingServiceProvider extends ServiceProvider
+{
+    use TraceLucidArchitecture;
+    use TraceTrellisHttpRequests;
+
+    /**
+     * Bootstrap the application services.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        $this->renameRootSpanBasedOnFeature();
+
+        $this->annotateRunningOperations();
+        $this->annotateRunningJobs();
+
+        $this->injectTraceIntoDispatchedRequests();
+        $this->highlightErrors();
+    }
+}
 ```
