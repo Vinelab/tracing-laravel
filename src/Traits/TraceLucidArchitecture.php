@@ -7,16 +7,20 @@ use Illuminate\Support\Facades\Event;
 use Lucid\Foundation\Events\FeatureStarted;
 use Lucid\Foundation\Events\JobStarted;
 use Lucid\Foundation\Events\OperationStarted;
-use Trellis\Clients\Facades\Intercept;
 use Vinelab\Tracing\Facades\Trace;
-use Vinelab\Tracing\Propagation\Formats;
 
 /**
- * Provides tracing configuration for Lucid based projects
+ * Trait TraceLucidArchitecture
+ *
+ * Provides tracing configuration for projects based on Lucid Architecture
+ *
+ * https://github.com/lucid-architecture/laravel
+ * https://packagist.org/packages/lucid-arch/laravel-foundation
+ *
+ * @package Vinelab\Tracing\Traits
  */
-trait LucidTrait
+trait TraceLucidArchitecture
 {
-
     protected function renameRootSpanBasedOnFeature()
     {
         Event::listen(FeatureStarted::class, function (FeatureStarted $event) {
@@ -35,13 +39,6 @@ trait LucidTrait
     {
         Event::listen(JobStarted::class, function (JobStarted $event) {
             optional(Trace::getRootSpan())->annotate($event->name);
-        });
-    }
-
-    protected function injectTraceIntoDispatchedRequests()
-    {
-        Intercept::request(function ($request) {
-            return Trace::inject($request, Formats::VINELAB_HTTP);
         });
     }
 
