@@ -2,7 +2,6 @@
 
 namespace Vinelab\Tracing\Integration\Concerns;
 
-use Illuminate\Log\Events\MessageLogged;
 use Illuminate\Support\Facades\Event;
 use Lucid\Foundation\Events\FeatureStarted;
 use Lucid\Foundation\Events\JobStarted;
