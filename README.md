@@ -23,7 +23,6 @@
     - [Registering New Driver](#registering-new-driver)
   - [Integrations](#integrations)
     - [Lucid Architecture](#lucid-architecture)
-    - [Trellis Service Clients](#trellis-service-clients)
 
 ## Introduction
 
@@ -478,27 +477,6 @@ class TracingServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->traceLucidArchitecture();
-    }
-}
-```
-
-### Trellis Service Clients
-
-This package includes optional `Vinelab\Tracing\Integration\Concerns\TracesTrellisHttpRequests` trait to enable tracing for Trellis interservice communication over HTTP:
-
-```php
-class TracingServiceProvider extends ServiceProvider
-{
-    use TracesTrellisHttpRequests;
-
-    /**
-     * Bootstrap any application services.
-     *
-     * @return void
-     */
-    public function boot()
-    {
-        $this->traceTrellisHttpRequests();
     }
 }
 ```
