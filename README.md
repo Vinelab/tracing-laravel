@@ -1,25 +1,28 @@
 # Laravel Tracing
 
-- [Introduction](#introduction)
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Driver Prerequisites](#driver-prerequisites)
-  - [Zipkin](#zipkin)
-  - [Jaeger](#jaeger)
-- [Usage](#usage)
-  - [Creating Spans](#creating-spans)
-  - [Custominzing Spans](#customizing-spans)
-  - [Retrieving Spans](#retrieving-spans)
-  - [Controlling Spans](#controlling-spans)
+  - [Introduction](#introduction)
+  - [Requirements](#requirements)
+  - [Installation](#installation)
+  - [Driver Prerequisites](#driver-prerequisites)
+    - [Zipkin](#zipkin)
+    - [Jaeger](#jaeger)
+    - [Null](#null)
+  - [Usage](#usage)
+    - [Creating Spans](#creating-spans)
+    - [Customizing Spans](#customizing-spans)
+    - [Retrieving Spans](#retrieving-spans)
+    - [Controlling Spans](#controlling-spans)
   - [Flushing Spans](#flushing-spans)
-  - [Logging Integration](#logging-integration)
-  - [Middleware](#middleware)
-  - [Console Commands](#console-commands)
-  - [Queue Jobs](#queue-jobs)
-  - [Context Propagation](#context-propagation)
-- [Custom Drivers](#custom-drivers)
-  - [Writing New Driver](#writing-new-driver)
-  - [Registering New Driver](#registering-new-driver)
+    - [Logging](#logging)
+    - [Middleware](#middleware)
+    - [Console Commands](#console-commands)
+    - [Queue Jobs](#queue-jobs)
+    - [Context Propagation](#context-propagation)
+  - [Custom Drivers](#custom-drivers)
+    - [Writing New Driver](#writing-new-driver)
+    - [Registering New Driver](#registering-new-driver)
+  - [Integrations](#integrations)
+    - [Lucid Architecture](#lucid-architecture)
 
 ## Introduction
 
@@ -190,7 +193,7 @@ Most of the time though you don't need to explicitly call `flush`.  Since PHP is
 
 It's only when processing requests continuously in a loop (e.g. AMQP channels) that you must resort to calling `flush` manually.
 
-### Logging Integration
+### Logging
 
 Each root span is associated with a unique identifier that can be used to lookup its trace. It is recommended you include it as part of [context](https://github.com/laravel/framework/blob/v5.8.31/src/Illuminate/Foundation/Exceptions/Handler.php#L151) when reporting errors to bridge the gap between different parts of your monitoring stack:
 
@@ -453,4 +456,27 @@ Once your driver has been registered, you may specify it as your tracing driver 
 
 ```
 TRACING_DRIVER=jaeger
+```
+
+## Integrations
+
+### Lucid Architecture
+
+This package includes optional `Vinelab\Tracing\Integration\Concerns\TracesLucidArchitecture` trait to enable tracing for [Lucid projects](https://github.com/lucid-architecture/laravel-microservice):
+
+```php
+class TracingServiceProvider extends ServiceProvider
+{
+    use TracesLucidArchitecture;
+
+    /**
+     * Bootstrap any application services.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        $this->traceLucidArchitecture();
+    }
+}
 ```

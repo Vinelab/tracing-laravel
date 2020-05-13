@@ -31,11 +31,13 @@
         "mockery/mockery": "~1.0",
         "php-amqplib/php-amqplib": "~2.8",
         "phpunit/phpunit": "~6.0",
-        "vinelab/http": "~1.5"
+        "vinelab/http": "~1.5",
+        "lucid-arch/laravel-foundation": "^7.0"
     },
     "suggest": {
         "php-amqplib/php-amqplib": "A pure PHP implementation of the AMQP protocol",
-        "vinelab/http": "Simple fault-tolerant HTTP client for sending and receiving JSON and XML"
+        "vinelab/http": "Fault-tolerant HTTP client for sending and receiving JSON and XML that we also support tracing for",
+        "lucid-arch/laravel-foundation": "Base package for the Lucid Architecture that we also support tracing for"
     },
     "autoload": {
         "psr-4": {
