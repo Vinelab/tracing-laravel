@@ -95,6 +95,7 @@ class QueueJobSubscriber
         if ($this->app->has('tracing.queue.span')) {
             if ($event instanceof JobFailed) {
                 $this->app->get('tracing.queue.span')->tag('error', 'true');
+                $this->app->get('tracing.queue.span')->tag('error_message', $event->exception->getMessage());
             }
 
             $this->app->get('tracing.queue.span')->finish();

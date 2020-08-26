@@ -47,6 +47,7 @@ class TracingServiceProvider extends ServiceProvider
             $this->app['events']->listen(MessageLogged::class, function (MessageLogged $event) {
                 if ($event->level == 'error') {
                     optional(Trace::getRootSpan())->tag('error', 'true');
+                    optional(Trace::getRootSpan())->tag('error_message', $event->message);
                 }
             });
         }
