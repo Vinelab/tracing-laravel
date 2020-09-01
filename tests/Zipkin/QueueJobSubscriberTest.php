@@ -127,6 +127,7 @@ class QueueJobSubscriberTest extends TestCase
                 ],
             ], json_decode(Arr::get($span, 'tags.job_input'), true));
             $this->assertEquals('true', Arr::get($span, 'tags.error'));
+            $this->assertEquals('whatever', Arr::get($span, 'tags.error_message'));
 
             return true;
         }));
