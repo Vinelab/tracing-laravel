@@ -32,7 +32,7 @@ class NullTracer implements Tracer
      * @param int|null $timestamp
      * @return Span
      */
-    public function startSpan(string $name, SpanContext $spanContext = null, $timestamp = null): Span
+    public function startSpan(string $name, ?SpanContext $spanContext = null, $timestamp = null): Span
     {
         if ($this->rootSpan) {
             $span = new NullSpan(false);
