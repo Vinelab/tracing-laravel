@@ -60,10 +60,11 @@ class ZipkinSpan implements Span
      * Notify that operation has finished.
      * Span duration is derived by subtracting the start
      * timestamp from this, and set when appropriate.
+     * @param int|null $timestamp
      */
-    public function finish(): void
+    public function finish($timestamp = null): void
     {
-        $this->span->finish();
+        $this->span->finish($timestamp);
     }
 
     /**
