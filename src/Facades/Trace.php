@@ -12,7 +12,7 @@ use Vinelab\Tracing\Contracts\Tracer;
 /**
  * @see \Vinelab\Tracing\Contracts\Tracer
  *
- * @method static Span startSpan(string $name, SpanContext $spanContext = null)
+ * @method static Span startSpan(string $name, SpanContext $spanContext = null, $timestamp = null)
  * @method static Span getRootSpan()
  * @method static Span getCurrentSpan()
  * @method static string|null getUUID()

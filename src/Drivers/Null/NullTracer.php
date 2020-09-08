@@ -27,11 +27,12 @@ class NullTracer implements Tracer
      *
      * If parent context does not contain a trace, a new trace will be implicitly created.
      *
-     * @param  string  $name
-     * @param  SpanContext|null  $spanContext
+     * @param string $name
+     * @param SpanContext|null $spanContext
+     * @param int|null $timestamp
      * @return Span
      */
-    public function startSpan(string $name, ?SpanContext $spanContext = null): Span
+    public function startSpan(string $name, SpanContext $spanContext = null, $timestamp = null): Span
     {
         if ($this->rootSpan) {
             $span = new NullSpan(false);
