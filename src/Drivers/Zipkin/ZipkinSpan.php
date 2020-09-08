@@ -60,9 +60,10 @@ class ZipkinSpan implements Span
      * Notify that operation has finished.
      * Span duration is derived by subtracting the start
      * timestamp from this, and set when appropriate.
-     * @param int|null $timestamp
+     *
+     * @param int|null $timestamp  intval(microtime(true) * 1000000)
      */
-    public function finish($timestamp = null): void
+    public function finish(?int $timestamp = null): void
     {
         $this->span->finish($timestamp);
     }

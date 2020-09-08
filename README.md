@@ -420,7 +420,7 @@ use Vinelab\Tracing\Contracts\Injector;
 use Vinelab\Tracing\Contracts\Span;
 use Vinelab\Tracing\Contracts\SpanContext;
 
-public function startSpan(string $name, SpanContext $spanContext = null): Span;
+public function startSpan(string $name, SpanContext $spanContext = null, ?int $timestamp = null): Span;
 public function getRootSpan(): ?Span;
 public function getCurrentSpan(): ?Span;
 public function getUUID(): ?string;
