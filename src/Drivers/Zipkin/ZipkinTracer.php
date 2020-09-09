@@ -170,11 +170,12 @@ class ZipkinTracer implements Tracer
      * The first span you create in the service will be considered the root span. Calling
      * flush {@see ZipkinTracer::flush()} will unset the root span along with request uuid.
      *
-     * @param  string  $name
-     * @param  SpanContext|null  $spanContext
+     * @param string $name
+     * @param SpanContext|null $spanContext
+     * @param int|null $timestamp  intval(microtime(true) * 1000000)
      * @return Span
      */
-    public function startSpan(string $name, ?SpanContext $spanContext = null): Span
+    public function startSpan(string $name, ?SpanContext $spanContext = null, ?int $timestamp = null): Span
     {
         $rawSpan = $this->tracing->getTracer()->nextSpan($spanContext ? $spanContext->getRawContext() : null);
 
@@ -191,7 +192,7 @@ class ZipkinTracer implements Tracer
         $this->currentSpan = $span;
         $span->setName($name);
 
-        $rawSpan->start();
+        $rawSpan->start($timestamp);
 
         return $span;
     }

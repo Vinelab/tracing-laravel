@@ -2,6 +2,7 @@
 
 namespace Vinelab\Tracing\Tests\Zipkin;
 
+use Carbon\Carbon;
 use Google\Cloud\PubSub\Message;
 use GuzzleHttp\Psr7\Request as PsrRequest;
 use Illuminate\Http\Request;
@@ -95,21 +96,27 @@ class TracerTest extends TestCase
         $reporter = Mockery::spy(NoopReporter::class);
         $tracer = $this->createTracer($reporter);
 
-        $span = $tracer->startSpan('Http Request');
+        $startTimestamp = intval(microtime(true) * 1000000);
+        $span = $tracer->startSpan('Http Request', null, $startTimestamp);
         $span->setName('Create Order');
         $span->tag('request_path', 'api/orders');
         $span->annotate('Create Payment');
         $span->annotate('Update Order Status');
+        $finishTimestamp = intval(microtime(true) * 1000000);
+        $span->finish($finishTimestamp);
         $tracer->flush();
 
-        $reporter->shouldHaveReceived('report')->with(Mockery::on(function ($spans) {
-            $span = $this->shiftSpan($spans);
-            $this->assertEquals('Create Order', Arr::get($span, 'name'));
-            $this->assertEquals('api/orders', Arr::get($span, 'tags.request_path'));
-            $this->assertEquals('Create Payment', Arr::get($span, 'annotations.0.value'));
-            $this->assertEquals('Update Order Status', Arr::get($span, 'annotations.1.value'));
-            return true;
-        }));
+        $reporter->shouldHaveReceived('report')->with(
+            Mockery::on(function ($spans) use ($startTimestamp, $finishTimestamp) {
+                $span = $this->shiftSpan($spans);
+                $this->assertEquals('Create Order', Arr::get($span, 'name'));
+                $this->assertEquals($finishTimestamp - $startTimestamp, Arr::get($span, 'duration'));
+                $this->assertEquals('api/orders', Arr::get($span, 'tags.request_path'));
+                $this->assertEquals('Create Payment', Arr::get($span, 'annotations.0.value'));
+                $this->assertEquals('Update Order Status', Arr::get($span, 'annotations.1.value'));
+                return true;
+            })
+        );
     }
 
     /** @test */
