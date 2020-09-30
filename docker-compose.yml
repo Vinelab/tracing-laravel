@@ -3,6 +3,6 @@ version: '3.7'
 services:
   # Docker Image: https://hub.docker.com/r/vinelab/nginx-php
   app:
-    image: vinelab/nginx-php:composer
+    image: vinelab/nginx-php:7.4
     volumes:
       - ./:/code:cached
