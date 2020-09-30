@@ -22,6 +22,7 @@ class TracingDriverManager extends Manager
     public function __construct($app)
     {
         parent::__construct($app);
+        $this->config = $app->make('config');
     }
 
     /**
