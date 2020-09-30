@@ -32,7 +32,7 @@
         "php-amqplib/php-amqplib": "~2.8",
         "phpunit/phpunit": "~7.0",
         "vinelab/http": "~1.5",
-        "lucid-arch/laravel-foundation": "^8.0"
+        "lucid-arch/laravel-foundation": "^7.0|^8.0"
     },
     "suggest": {
         "php-amqplib/php-amqplib": "A pure PHP implementation of the AMQP protocol",
