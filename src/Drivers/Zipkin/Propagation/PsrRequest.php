@@ -2,6 +2,7 @@
 
 namespace Vinelab\Tracing\Drivers\Zipkin\Propagation;
 
+use Illuminate\Http\Request;
 use Psr\Http\Message\RequestInterface;
 use Zipkin\Propagation\Exceptions\InvalidPropagationCarrier;
 use Zipkin\Propagation\Exceptions\InvalidPropagationKey;
@@ -13,11 +14,11 @@ class PsrRequest implements Getter, Setter
     /**
      * Gets the first value of the given propagation key or returns null
      *
-     * @param \Illuminate\Http\Request $carrier
+     * @param Request $carrier
      * @param  string  $key
      * @return string|null
      */
-    public function get($carrier, $key)
+    public function get($carrier, string $key): ?string
     {
         if ($carrier instanceof RequestInterface) {
             $headers = $carrier->getHeader(strtolower($key));
@@ -35,7 +36,7 @@ class PsrRequest implements Getter, Setter
      * @param  string  $value
      * @return void
      */
-    public function put(&$carrier, $key, $value)
+    public function put(&$carrier, string $key, string $value): void
     {
         if ($key === '') {
             throw InvalidPropagationKey::forEmptyKey();

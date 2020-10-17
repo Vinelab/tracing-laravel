@@ -246,7 +246,6 @@ class TracerTest extends TestCase
         $this->assertArrayHasKey('x-b3-traceid', $arr);
         $this->assertArrayHasKey('x-b3-spanid', $arr);
         $this->assertArrayHasKey('x-b3-sampled', $arr);
-        $this->assertArrayHasKey('x-b3-flags', $arr);
 
         $this->assertValidTraceContext($tracer->extract($arr, Formats::TEXT_MAP));
     }
@@ -266,7 +265,6 @@ class TracerTest extends TestCase
         $this->assertNotEmpty($request->getHeader('x-b3-traceid'));
         $this->assertNotEmpty($request->getHeader('x-b3-spanid'));
         $this->assertNotEmpty($request->getHeader('x-b3-sampled'));
-        $this->assertNotEmpty($request->getHeader('x-b3-flags'));
 
         $this->assertValidTraceContext($tracer->extract($request, Formats::PSR_REQUEST));
     }
@@ -286,7 +284,6 @@ class TracerTest extends TestCase
         $this->assertNotNull($request->header('x-b3-traceid'));
         $this->assertNotNull($request->header('x-b3-spanid'));
         $this->assertNotNull($request->header('x-b3-sampled'));
-        $this->assertNotNull($request->header('x-b3-flags'));
 
         $this->assertValidTraceContext($tracer->extract($request, Formats::ILLUMINATE_HTTP));
     }
@@ -310,7 +307,6 @@ class TracerTest extends TestCase
         $this->assertArrayHasKey('x-b3-traceid', $arr);
         $this->assertArrayHasKey('x-b3-spanid', $arr);
         $this->assertArrayHasKey('x-b3-sampled', $arr);
-        $this->assertArrayHasKey('x-b3-flags', $arr);
 
         $this->assertValidTraceContext($tracer->extract($message, Formats::AMQP));
     }
@@ -331,7 +327,6 @@ class TracerTest extends TestCase
         $this->assertArrayHasKey('x-b3-traceid', $arr);
         $this->assertArrayHasKey('x-b3-spanid', $arr);
         $this->assertArrayHasKey('x-b3-sampled', $arr);
-        $this->assertArrayHasKey('x-b3-flags', $arr);
 
         $this->assertValidTraceContext($tracer->extract(new Message($msgBody, []), Formats::GOOGLE_PUBSUB));
     }
@@ -348,7 +343,6 @@ class TracerTest extends TestCase
         $this->assertRegExp('/x-b3-traceid: \w/', Arr::get($request, 'headers.0', ''));
         $this->assertRegExp('/x-b3-spanid: \w/', Arr::get($request, 'headers.1', ''));
         $this->assertRegExp('/x-b3-sampled: \d/', Arr::get($request, 'headers.2', ''));
-        $this->assertRegExp('/x-b3-flags: \d/', Arr::get($request, 'headers.3', ''));
     }
 
     /**
