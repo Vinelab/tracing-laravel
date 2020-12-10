@@ -16,7 +16,7 @@ class VinelabHttp implements Setter
      * @param  string  $value
      * @return void
      */
-    public function put(&$carrier, $key, $value)
+    public function put(&$carrier, string $key, string $value): void
     {
         if ($key === '') {
             throw InvalidPropagationKey::forEmptyKey();

@@ -18,7 +18,7 @@ class GooglePubSub implements Getter, Setter
      * @param  string  $key
      * @return string|null
      */
-    public function get($carrier, $key)
+    public function get($carrier, string $key): ?string
     {
         if ($carrier instanceof Message) {
             return $carrier->attribute(strtolower($key));
@@ -35,7 +35,7 @@ class GooglePubSub implements Getter, Setter
      * @param  string  $value
      * @return void
      */
-    public function put(&$carrier, $key, $value)
+    public function put(&$carrier, string $key, string $value): void
     {
         if ($key === '') {
             throw InvalidPropagationKey::forEmptyKey();
