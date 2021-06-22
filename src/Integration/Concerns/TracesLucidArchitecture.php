@@ -5,23 +5,50 @@ namespace Vinelab\Tracing\Integration\Concerns;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Event;
-use Lucid\Foundation\Events\FeatureStarted;
-use Lucid\Foundation\Events\JobStarted;
-use Lucid\Foundation\Events\OperationStarted;
+use Lucid\Foundation\Events\FeatureStarted as LegacyFeatureStarted;
+use Lucid\Foundation\Events\JobStarted as LegacyJobStarted;
+use Lucid\Foundation\Events\OperationStarted as LegacyOperationStarted;
 use Vinelab\Tracing\Facades\Trace;
+use Lucid\Events\FeatureStarted;
+use Lucid\Events\OperationStarted;
+use Lucid\Events\JobStarted;
 
 /**
  * Enables tracing for projects based on a Lucid Architecture
  *
+ * https://github.com/lucidarch/lucid
  * https://github.com/lucid-architecture/laravel-microservice
  */
 trait TracesLucidArchitecture
 {
     protected function traceLucidArchitecture()
     {
+        $this->resolveLucidUnits();
+
         $this->renameSpanAfterFeature();
         $this->annotateRunningOperations();
         $this->annotateRunningJobs();
+    }
+
+    protected function resolveLucidUnits()
+    {
+        if (!class_exists(FeatureStarted::class)) {
+            App::bind(FeatureStarted::class, function () {
+                return LegacyFeatureStarted::class;
+            });
+        }
+
+        if (!class_exists(OperationStarted::class)) {
+            App::bind(OperationStarted::class, function () {
+                return LegacyOperationStarted::class;
+            });
+        }
+
+        if (!class_exists(JobStarted::class)) {
+            App::bind(JobStarted::class, function () {
+                return LegacyJobStarted::class;
+            });
+        }
     }
 
     protected function renameSpanAfterFeature()
