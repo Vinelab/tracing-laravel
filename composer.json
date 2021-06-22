@@ -39,11 +39,13 @@
     "phpunit/phpunit": "~7.0",
     "vinelab/http": "~1.5",
     "lucid-arch/laravel-foundation": "^7.0|^8.0",
+    "lucidarch/lucid": "^1.0"
   },
   "suggest": {
     "php-amqplib/php-amqplib": "A pure PHP implementation of the AMQP protocol",
     "vinelab/http": "Fault-tolerant HTTP client for sending and receiving JSON and XML that we also support tracing for",
     "lucid-arch/laravel-foundation": "Base package for the legacy Lucid Architecture that we also support tracing for",
+    "lucidarch/lucid": "Latest distribution package for the Lucid Architecture that we also support tracing for"
   },
   "autoload": {
     "psr-4": {
