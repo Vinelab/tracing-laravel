@@ -53,6 +53,10 @@ return [
             //
         ],
 
+        'sensitive_input' => [
+            //
+        ],
+
         'payload' => [
             'content_types' => [
                 'application/json',

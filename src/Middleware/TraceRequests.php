@@ -88,7 +88,7 @@ class TraceRequests
         $span->tag('request_ip', $request->ip());
 
         if (in_array($request->headers->get('Content_Type'), $this->config->get('tracing.middleware.payload.content_types'))) {
-            $span->tag('request_input', json_encode($request->input()));
+            $span->tag('request_input', json_encode($this->filterInput($request->input())));
         }
     }
 
@@ -192,5 +192,33 @@ class TraceRequests
         }
 
         return $content;
+    }
+
+    /**
+     * @param  array  $input
+     * @return array
+     */
+    protected function filterInput(array $input = []): array
+    {
+        return $this->hideSensitiveInput(collect($input))->all();
+    }
+
+    /**
+     * @param  Collection  $input
+     * @return Collection
+     */
+    protected function hideSensitiveInput(Collection $input): Collection
+    {
+        $sensitiveInput = $this->config->get('tracing.middleware.sensitive_input');
+
+        $normalizedInput = array_map('strtolower', $sensitiveInput);
+
+        $input->transform(function ($value, $name) use ($normalizedInput) {
+            return in_array($name, $normalizedInput)
+                ? ['This value is hidden because it contains sensitive info']
+                : $value;
+        });
+
+        return $input;
     }
 }

@@ -7,6 +7,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Config;
 use Mockery;
 use PHPUnit\Framework\TestCase;
 use Vinelab\Tracing\Middleware\TraceRequests;
@@ -23,7 +24,8 @@ class TraceRequestsTest extends TestCase
         $tracer = $this->createTracer($reporter);
 
         $request = Request::create('/shipments/3242?token=secret', 'POST', [], [], [], [], json_encode([
-            'data' => 'Catherine Dupuy'
+            'data' => 'Catherine Dupuy',
+            'password' => 'PASSWORD',
         ]));
         $request->headers->set('Content-Type', 'application/json');
         $request->setRouteResolver(function () {
@@ -33,11 +35,13 @@ class TraceRequestsTest extends TestCase
         });
 
         $response = new JsonResponse([
-            'message' => 'Unprocessable Entity'
+            'message' => 'Unprocessable Entity',
         ], 422);
 
-        $middleware = new TraceRequests($tracer, $this->mockConfig([], ['Content-Type', 'user-agent'], ['user-agent']));
-        $middleware->handle($request, function ($req) {});
+        $middleware = new TraceRequests($tracer, $this->mockConfig([], ['Content-Type',
+                                                                        'user-agent'], ['user-agent'], ['password']));
+        $middleware->handle($request, function ($req) {
+        });
         $middleware->terminate($request, $response);
         $tracer->flush();
 
@@ -52,6 +56,7 @@ class TraceRequestsTest extends TestCase
             $this->assertContains('application/json', Arr::get($span, 'tags.request_headers'));
             $this->assertContains('This value is hidden because it contains sensitive info', Arr::get($span, 'tags.request_headers'));
             $this->assertContains('Catherine Dupuy', Arr::get($span, 'tags.request_input'));
+            $this->assertNotContains('PASSWORD', Arr::get($span, 'tags.request_input'));
             $this->assertEquals('127.0.0.1', Arr::get($span, 'tags.request_ip'));
 
             $this->assertContains('422', Arr::get($span, 'tags.response_status'));
@@ -71,7 +76,8 @@ class TraceRequestsTest extends TestCase
         $request = Request::create('/users/1', 'GET', [], [], [], []);
 
         $middleware = new TraceRequests($tracer, $this->mockConfig(['users/*']));
-        $middleware->handle($request, function ($req) {});
+        $middleware->handle($request, function ($req) {
+        });
         $middleware->terminate($request, new JsonResponse);
 
         $tracer->flush();
@@ -87,9 +93,10 @@ class TraceRequestsTest extends TestCase
      * @param  array  $excludedPaths
      * @param  array  $allowedHeaders
      * @param  array  $sensitiveHeaders
+     * @param  array  $sensitiveInput
      * @return Repository|Mockery\LegacyMockInterface|Mockery\MockInterface
      */
-    protected function mockConfig(array $excludedPaths = [], $allowedHeaders = [], array $sensitiveHeaders = [])
+    protected function mockConfig(array $excludedPaths = [], array $allowedHeaders = [], array $sensitiveHeaders = [], array $sensitiveInput = [])
     {
         $config = Mockery::mock(Repository::class);
         $config->shouldReceive('get')
@@ -107,6 +114,10 @@ class TraceRequestsTest extends TestCase
         $config->shouldReceive('get')
             ->with('tracing.middleware.sensitive_headers')
             ->andReturn($sensitiveHeaders);
+
+        $config->shouldReceive('get')
+            ->with('tracing.middleware.sensitive_input')
+            ->andReturn($sensitiveInput);
 
         return $config;
     }
