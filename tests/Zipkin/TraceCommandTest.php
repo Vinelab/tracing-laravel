@@ -36,9 +36,9 @@ class TraceCommandTest extends TestCase
         $reporter->shouldHaveReceived('report')->with(Mockery::on(function ($spans) {
             $span = $this->shiftSpan($spans);
 
-            $this->assertEquals('artisan example', Arr::get($span, 'name'));
-            $this->assertEquals('cli', Arr::get($span, 'tags.type'));
-            $this->assertContains('phpunit', Arr::get($span, 'tags.argv'));
+            $this->assertEquals('artisan example', $span->getName());
+            $this->assertEquals('cli', Arr::get($span->getTags(), 'type'));
+            $this->assertStringContainsString('phpunit', Arr::get($span->getTags(), 'argv'));
 
             return true;
         }));

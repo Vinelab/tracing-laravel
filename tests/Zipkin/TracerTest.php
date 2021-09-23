@@ -33,10 +33,10 @@ class TracerTest extends TestCase
         $reporter->shouldHaveReceived('report')->with(Mockery::on(function ($spans) {
             $span = $this->shiftSpan($spans);
 
-            $this->assertEquals('orders', Arr::get($span, 'localEndpoint.serviceName'));
-            $this->assertEquals('192.88.105.145', Arr::get($span, 'localEndpoint.ipv4'));
-            $this->assertEquals('9444', Arr::get($span, 'localEndpoint.port'));
-            $this->assertEquals(16, strlen(Arr::get($span, 'traceId')));
+            $this->assertEquals('orders', $span->getLocalEndpoint()->getServiceName());
+            $this->assertEquals('192.88.105.145', $span->getLocalEndpoint()->getIpv4());
+            $this->assertEquals('9444', $span->getLocalEndpoint()->getPort());
+            $this->assertEquals(16, strlen($span->getTraceId()));
 
             return true;
         }));
@@ -53,7 +53,7 @@ class TracerTest extends TestCase
 
         $reporter->shouldHaveReceived('report')->with(Mockery::on(function ($spans) {
             $span = $this->shiftSpan($spans);
-            $this->assertEquals('127.0.0.1', Arr::get($span, 'localEndpoint.ipv4'));
+            $this->assertEquals('127.0.0.1', $span->getLocalEndpoint()->getIpv4());
             return true;
         }));
     }
@@ -69,7 +69,7 @@ class TracerTest extends TestCase
 
         $reporter->shouldHaveReceived('report')->with(Mockery::on(function ($spans) {
             $span = $this->shiftSpan($spans);
-            $this->assertEquals('dec6:dcca:47dc:7c89:5a7c:8d6f:c9b3:96d0', Arr::get($span, 'localEndpoint.ipv6'));
+            $this->assertEquals('dec6:dcca:47dc:7c89:5a7c:8d6f:c9b3:96d0', $span->getLocalEndpoint()->getIpv6());
             return true;
         }));
     }
@@ -85,7 +85,7 @@ class TracerTest extends TestCase
 
         $reporter->shouldHaveReceived('report')->with(Mockery::on(function ($spans) {
             $span = $this->shiftSpan($spans);
-            $this->assertEquals(32, strlen(Arr::get($span, 'traceId')));
+            $this->assertEquals(32, strlen($span->getTraceId()));
             return true;
         }));
     }
@@ -109,11 +109,11 @@ class TracerTest extends TestCase
         $reporter->shouldHaveReceived('report')->with(
             Mockery::on(function ($spans) use ($startTimestamp, $finishTimestamp) {
                 $span = $this->shiftSpan($spans);
-                $this->assertEquals('Create Order', Arr::get($span, 'name'));
-                $this->assertEquals($finishTimestamp - $startTimestamp, Arr::get($span, 'duration'));
-                $this->assertEquals('api/orders', Arr::get($span, 'tags.request_path'));
-                $this->assertEquals('Create Payment', Arr::get($span, 'annotations.0.value'));
-                $this->assertEquals('Update Order Status', Arr::get($span, 'annotations.1.value'));
+                $this->assertEquals('Create Order', $span->getName());
+                $this->assertEquals($finishTimestamp - $startTimestamp, $span->getDuration());
+                $this->assertEquals('api/orders', Arr::get($span->getTags(), 'request_path'));
+                $this->assertEquals('Create Payment', Arr::get($span->getAnnotations(), '0.value'));
+                $this->assertEquals('Update Order Status', Arr::get($span->getAnnotations(), '1.value'));
                 return true;
             })
         );
@@ -129,7 +129,7 @@ class TracerTest extends TestCase
         $tracer->flush();
 
         $reporter->shouldHaveReceived('report')->with(Mockery::on(function ($spans) {
-            $duration = Arr::get($this->shiftSpan($spans), 'duration');
+            $duration = $this->shiftSpan($spans)->getDuration();
             $this->assertTrue($duration > 0);
             return true;
         }));
@@ -151,9 +151,9 @@ class TracerTest extends TestCase
         $reporter->shouldHaveReceived('report')->with(Mockery::on(function ($spans) {
             $span = $this->shiftSpan($spans);
 
-            $this->assertRegExp($this->getRegexpForUUID(), Arr::get($span, 'tags.uuid'));
-            $this->assertNotNull(Arr::get($span, 'id'));
-            $this->assertNull(Arr::get($span, 'parentId'));
+            $this->assertRegExp($this->getRegexpForUUID(), Arr::get($span->getTags(), 'uuid'));
+            $this->assertNotNull($span->getSpanId());
+            $this->assertNull($span->getParentId());
 
             $spanId = Arr::get($span, 'id');
             $span = $this->shiftSpan($spans);
@@ -180,7 +180,7 @@ class TracerTest extends TestCase
 
             $this->assertEquals(
                 'Value exceeds the maximum allowed length of 10 bytes',
-                Arr::get($span, 'tags.response_content')
+                Arr::get($span->getTags(), 'response_content')
             );
 
             return true;

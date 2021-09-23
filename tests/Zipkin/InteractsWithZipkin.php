@@ -34,12 +34,11 @@ trait InteractsWithZipkin
 
     /**
      * @param  array  $spans
-     * @return array
      */
-    protected function shiftSpan(array &$spans): array
+    protected function shiftSpan(array &$spans): Span
     {
         /** @var Span $span */
         $span = array_shift($spans);
-        return $span->toArray();
+        return $span;
     }
 }

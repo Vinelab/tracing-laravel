@@ -57,20 +57,20 @@ class QueueJobSubscriberTest extends TestCase
         $reporter->shouldHaveReceived('report')->with(Mockery::on(function ($spans) {
             $span = $this->shiftSpan($spans);
 
-            $parentId = Arr::get($span, 'id');
+            $parentId = $span->getSpanId();
 
             $span = $this->shiftSpan($spans);
 
-            $this->assertEquals($parentId, Arr::get($span, 'parentId'));
-            $this->assertEquals('ExampleJob', Arr::get($span, 'name'));
-            $this->assertEquals('sync', Arr::get($span, 'tags.connection_name'));
-            $this->assertEquals('default', Arr::get($span, 'tags.queue_name'));
+            $this->assertEquals($parentId, $span->getParentId());
+            $this->assertEquals('ExampleJob', $span->getName());
+            $this->assertEquals('sync', Arr::get($span->getTags(), 'connection_name'));
+            $this->assertEquals('default', Arr::get($span->getTags(), 'queue_name'));
             $this->assertEquals([
                 'primitive' => 'Example Payload',
                 'fluent' => [
                     'name' => 'John Doe',
                 ],
-            ], json_decode(Arr::get($span, 'tags.job_input'), true));
+            ], json_decode(Arr::get($span->getTags(), 'job_input'), true));
 
             return true;
         }));
@@ -112,22 +112,22 @@ class QueueJobSubscriberTest extends TestCase
         $reporter->shouldHaveReceived('report')->with(Mockery::on(function ($spans) {
             $span = $this->shiftSpan($spans);
 
-            $parentId = Arr::get($span, 'id');
+            $parentId = $span->getSpanId();
 
             $span = $this->shiftSpan($spans);
 
-            $this->assertEquals($parentId, Arr::get($span, 'parentId'));
-            $this->assertEquals('ExampleJob', Arr::get($span, 'name'));
-            $this->assertEquals('sync', Arr::get($span, 'tags.connection_name'));
-            $this->assertEquals('default', Arr::get($span, 'tags.queue_name'));
+            $this->assertEquals($parentId, $span->getParentId());
+            $this->assertEquals('ExampleJob', $span->getName());
+            $this->assertEquals('sync', Arr::get($span->getTags(), 'connection_name'));
+            $this->assertEquals('default', Arr::get($span->getTags(), 'queue_name'));
             $this->assertEquals([
                 'primitive' => 'Example Payload',
                 'fluent' => [
                     'name' => 'John Doe',
                 ],
-            ], json_decode(Arr::get($span, 'tags.job_input'), true));
-            $this->assertEquals('true', Arr::get($span, 'tags.error'));
-            $this->assertEquals('whatever', Arr::get($span, 'tags.error_message'));
+            ], json_decode(Arr::get($span->getTags(), 'job_input'), true));
+            $this->assertEquals('true', Arr::get($span->getTags(), 'error'));
+            $this->assertEquals('whatever', Arr::get($span->getTags(), 'error_message'));
 
             return true;
         }));
