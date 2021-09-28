@@ -1,8 +1,12 @@
 version: '3.7'
 
 services:
-  # Docker Image: https://hub.docker.com/r/vinelab/nginx-php
-  app:
-    image: vinelab/nginx-php:7.4
+  workspace:
+    tty: true
+    build:
+      context: resources/docker/workspace
+      args:
+        PUID: "${PUID:-1000}"
+        PGID: "${PGID:-1000}"
     volumes:
-      - ./:/code:cached
+      - ./:/var/www/html

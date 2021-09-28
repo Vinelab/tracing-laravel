@@ -48,20 +48,20 @@ class TraceRequestsTest extends TestCase
         $reporter->shouldHaveReceived('report')->with(Mockery::on(function ($spans) {
             $span = $this->shiftSpan($spans);
 
-            $this->assertRegExp('/^POST \/?shipments\/{id}$/', Arr::get($span, 'name'));
-            $this->assertEquals('http', Arr::get($span, 'tags.type'));
-            $this->assertEquals('POST', Arr::get($span, 'tags.request_method'));
-            $this->assertEquals('shipments/3242', Arr::get($span, 'tags.request_path'));
-            $this->assertEquals('/shipments/3242?token=secret', Arr::get($span, 'tags.request_uri'));
-            $this->assertContains('application/json', Arr::get($span, 'tags.request_headers'));
-            $this->assertContains('This value is hidden because it contains sensitive info', Arr::get($span, 'tags.request_headers'));
-            $this->assertContains('Catherine Dupuy', Arr::get($span, 'tags.request_input'));
-            $this->assertNotContains('PASSWORD', Arr::get($span, 'tags.request_input'));
-            $this->assertEquals('127.0.0.1', Arr::get($span, 'tags.request_ip'));
+            $this->assertRegExp('/^POST \/?shipments\/{id}$/', $span->getName());
+            $this->assertEquals('http', Arr::get($span->getTags(), 'type'));
+            $this->assertEquals('POST', Arr::get($span->getTags(), 'request_method'));
+            $this->assertEquals('shipments/3242', Arr::get($span->getTags(), 'request_path'));
+            $this->assertEquals('/shipments/3242?token=secret', Arr::get($span->getTags(), 'request_uri'));
+            $this->assertStringContainsString('application/json', Arr::get($span->getTags(), 'request_headers'));
+            $this->assertStringContainsString('This value is hidden because it contains sensitive info', Arr::get($span->getTags(), 'request_headers'));
+            $this->assertStringContainsString('Catherine Dupuy', Arr::get($span->getTags(), 'request_input'));
+            $this->assertStringNotContainsString('PASSWORD', Arr::get($span->getTags(), 'request_input'));
+            $this->assertEquals('127.0.0.1', Arr::get($span->getTags(), 'request_ip'));
 
-            $this->assertContains('422', Arr::get($span, 'tags.response_status'));
-            $this->assertContains('application/json', Arr::get($span, 'tags.response_headers'));
-            $this->assertContains('Unprocessable Entity', Arr::get($span, 'tags.response_content'));
+            $this->assertStringContainsString('422', Arr::get($span->getTags(), 'response_status'));
+            $this->assertStringContainsString('application/json', Arr::get($span->getTags(), 'response_headers'));
+            $this->assertStringContainsString('Unprocessable Entity', Arr::get($span->getTags(), 'response_content'));
 
             return true;
         }));
