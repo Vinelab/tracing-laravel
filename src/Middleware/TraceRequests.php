@@ -68,8 +68,15 @@ class TraceRequests
         if ($span) {
             $this->tagResponseData($span, $request, $response);
 
-            if ($request->route()) {
+            $route = $request->route();
+
+            if ($this->isLaravelRoute($route)) {
                 $span->setName(sprintf('%s %s', $request->method(), $request->route()->uri()));
+            }
+
+            if ($this->isLumenRoute($route)) {
+                $routeUri = $this->getLumenRouteUri($request->path(), $route[2]);
+                $span->setName(sprintf('%s %s', $request->method(), $routeUri));
             }
         }
     }
@@ -99,7 +106,7 @@ class TraceRequests
      */
     protected function tagResponseData(Span $span, Request $request, $response): void
     {
-        if ($request->route()) {
+        if (method_exists($request->route(), 'getActionName')) {
             $span->tag('laravel_action', $request->route()->getActionName());
         }
 
@@ -220,5 +227,38 @@ class TraceRequests
         });
 
         return $input;
+    }
+
+    /**
+     * @param $route
+     * @return bool
+     */
+    protected function isLaravelRoute($route): bool
+    {
+        return method_exists($route, 'uri');
+    }
+
+    /**
+     * @param $route
+     * @return bool
+     */
+    protected function isLumenRoute($route): bool
+    {
+        return is_array($route) && is_array($route[2]);
+    }
+
+    /**
+     * @param  string  $path
+     * @param  array  $parameters
+     * @return string
+     */
+    protected function getLumenRouteUri(string $path, array $parameters): string
+    {
+        $replaceMap = array_combine(
+            array_values($parameters),
+            array_map(fn ($v) => '{'.$v.'}', array_keys($parameters))
+        );
+
+        return strtr($path, $replaceMap);
     }
 }
