@@ -22,7 +22,7 @@ class TracingServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        if ($this->app->runningInConsole()) {
+        if ($this->app->runningInConsole() && function_exists('config_path')) {
             $this->publishes([
                 __DIR__.'/../config/tracing.php' => config_path('tracing.php'),
             ]);
@@ -52,10 +52,12 @@ class TracingServiceProvider extends ServiceProvider
             });
         }
 
-        $this->app->terminating(function () {
-            optional(Trace::getRootSpan())->finish();
-            Trace::flush();
-        });
+        if (method_exists($this->app, 'terminating')) {
+            $this->app->terminating(function () {
+                optional(Trace::getRootSpan())->finish();
+                Trace::flush();
+            });
+        }
     }
 
     /**

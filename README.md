@@ -21,6 +21,7 @@
   - [Custom Drivers](#custom-drivers)
     - [Writing New Driver](#writing-new-driver)
     - [Registering New Driver](#registering-new-driver)
+  - [Usage With Lumen](#usage-with-lumen)
   - [Integrations](#integrations)
     - [Lucid Architecture](#lucid-architecture)
 
@@ -61,7 +62,7 @@ See [OpenTracing spec](https://opentracing.io/specification/) for more details o
 
 ## Requirements
 
-This package requires **PHP >= 7.1** and **Laravel 5.5 or later**.
+This package requires **PHP >= 7.1** and **Laravel 5.5 or later**. We also offer limited Lumen support (basic tracing and http middleware).
 
 ## Installation
 
@@ -83,6 +84,10 @@ You may configure the driver and service name in your `.env` file:
 TRACING_DRIVER=zipkin
 TRACING_SERVICE_NAME=orders
 ```
+
+You should also add credentials for your respective driver as described in the section below.
+
+For Lumen, see [dedicated section](#usage-with-lumen) with installation instructions.
 
 ## Driver Prerequisites
 
@@ -260,6 +265,8 @@ Trace::getRootSpan()->setName('Create Order')
 
 ### Console Commands
 
+> Lumen does not support this feature, but you can still create traces for commands manually using tracer instance.
+
 Let your console commsands be traced by adding `Vinelab\Tracing\Contracts\ShouldBeTraced` interface to your class.
 
 The container span will include the following tags:
@@ -274,6 +281,8 @@ Trace::getRootSpan()->setName('Mark Orders Expired')
 ```
 
 ### Queue Jobs
+
+> Lumen does not support this feature, but you can still create traces for jobs manually using tracer instance.
 
 Let your queue jobs be traced by adding `Vinelab\Tracing\Contracts\ShouldBeTraced` interface to your job class.
 
@@ -457,6 +466,43 @@ Once your driver has been registered, you may specify it as your tracing driver 
 ```
 TRACING_DRIVER=jaeger
 ```
+
+## Usage With Lumen
+
+You need to register service provider manually in `bootstrap/app.php` file:
+
+```php
+$app->register(Vinelab\Tracing\TracingServiceProvider::class);
+```
+
+You should also register middleware in the same file:
+
+```php
+$app->middleware([
+    Vinelab\Tracing\Middleware\TraceRequests::class,
+]);
+```
+
+Add the following lines to the end of `public/index.php` file:
+
+```php
+$tracer = app(Vinelab\Tracing\Contracts\Tracer::class);
+
+optional($tracer->getRootSpan())->finish();
+$tracer->flush();
+```
+
+Finally, you may also want to copy over `config/tracing.php` from this repo if you need to customize default settings.
+
+If you don't use facades in your Lumen project, you can resolve tracer instance from container like this:
+
+```php
+use Vinelab\Tracing\Contracts\Tracer;
+
+app(Tracer::class)->startSpan('Create Order')
+```
+
+Note that Lumen currently doesn't support automatic tracing for console commands and jobs because it doesn't dispatch some events and terminating callbacks. However, you can still create traces manually where you need them.
 
 ## Integrations
 
