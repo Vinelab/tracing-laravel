@@ -256,7 +256,7 @@ class TraceRequests
     {
         $replaceMap = array_combine(
             array_values($parameters),
-            array_map(fn ($v) => '{'.$v.'}', array_keys($parameters))
+            array_map(function ($v) { return '{'.$v.'}'; }, array_keys($parameters))
         );
 
         return strtr($path, $replaceMap);
