@@ -320,7 +320,7 @@ class ZipkinTracer implements Tracer
     protected function createReporter(): Reporter
     {
         if (!$this->reporter) {
-            return new HttpReporter(null, [
+            return new HttpReporter([
                 'endpoint_url' => sprintf('http://%s:%s/api/v2/spans', $this->host, $this->port),
                 'timeout' => $this->requestTimeout,
             ]);
