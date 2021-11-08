@@ -70,7 +70,7 @@ class QueueJobSubscriber
         /** @var mixed $jobInstance */
         $jobInstance = unserialize(Arr::get($job->payload(), 'data.command'));
 
-        if (in_array(ShouldBeTraced::class, class_implements($jobInstance))) {
+        if ($jobInstance && in_array(ShouldBeTraced::class, class_implements($jobInstance))) {
             $jobInput = $this->retrieveQueueJobInput($jobInstance);
 
             /** @var Span $span */
