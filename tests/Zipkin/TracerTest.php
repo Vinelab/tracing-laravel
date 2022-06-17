@@ -130,6 +130,7 @@ class TracerTest extends TestCase
 
         $reporter->shouldHaveReceived('report')->with(Mockery::on(function ($spans) {
             $duration = $this->shiftSpan($spans)->getDuration();
+
             $this->assertTrue($duration > 0);
             return true;
         }));
@@ -151,7 +152,7 @@ class TracerTest extends TestCase
         $reporter->shouldHaveReceived('report')->with(Mockery::on(function ($spans) {
             $span = $this->shiftSpan($spans);
 
-            $this->assertRegExp($this->getRegexpForUUID(), Arr::get($span->getTags(), 'uuid'));
+            $this->assertMatchesRegularExpression($this->getRegexpForUUID(), Arr::get($span->getTags(), 'uuid'));
             $this->assertNotNull($span->getSpanId());
             $this->assertNull($span->getParentId());
 
@@ -340,9 +341,9 @@ class TracerTest extends TestCase
 
         $request = $tracer->inject([], Formats::VINELAB_HTTP);
 
-        $this->assertRegExp('/x-b3-traceid: \w/', Arr::get($request, 'headers.0', ''));
-        $this->assertRegExp('/x-b3-spanid: \w/', Arr::get($request, 'headers.1', ''));
-        $this->assertRegExp('/x-b3-sampled: \d/', Arr::get($request, 'headers.2', ''));
+        $this->assertMatchesRegularExpression('/x-b3-traceid: \w/', Arr::get($request, 'headers.0', ''));
+        $this->assertMatchesRegularExpression('/x-b3-spanid: \w/', Arr::get($request, 'headers.1', ''));
+        $this->assertMatchesRegularExpression('/x-b3-sampled: \d/', Arr::get($request, 'headers.2', ''));
     }
 
     /**
