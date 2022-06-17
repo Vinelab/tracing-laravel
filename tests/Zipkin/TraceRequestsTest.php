@@ -48,7 +48,7 @@ class TraceRequestsTest extends TestCase
         $reporter->shouldHaveReceived('report')->with(Mockery::on(function ($spans) {
             $span = $this->shiftSpan($spans);
 
-            $this->assertRegExp('/^POST \/?shipments\/{id}$/', $span->getName());
+            $this->assertMatchesRegularExpression('/^POST \/?shipments\/{id}$/', $span->getName());
             $this->assertEquals('http', Arr::get($span->getTags(), 'type'));
             $this->assertEquals('POST', Arr::get($span->getTags(), 'request_method'));
             $this->assertEquals('shipments/3242', Arr::get($span->getTags(), 'request_path'));
