@@ -237,7 +237,7 @@ class TraceRequests
      */
     protected function isLaravelRoute($route): bool
     {
-        return method_exists($route, 'uri');
+        return $route && method_exists($route, 'uri');
     }
 
     /**
