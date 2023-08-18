@@ -5,6 +5,7 @@ namespace Vinelab\Tracing\Tests\Zipkin;
 use Vinelab\Tracing\Drivers\Zipkin\ZipkinTracer;
 use Zipkin\Recording\Span;
 use Zipkin\Reporter;
+use Zipkin\Sampler;
 
 trait InteractsWithZipkin
 {
@@ -15,6 +16,7 @@ trait InteractsWithZipkin
      * @param  int  $port
      * @param  int  $requestTimeout
      * @param  bool  $usesTraceId128bits
+     * @param  Sampler|null $sampler
      * @return ZipkinTracer
      */
     protected function createTracer(
@@ -23,10 +25,11 @@ trait InteractsWithZipkin
         string $host = 'localhost',
         int $port = 9411,
         int $requestTimeout = 5,
-        bool $usesTraceId128bits = false
+        bool $usesTraceId128bits = false,
+        ?Sampler $sampler = null
     ): ZipkinTracer
     {
-        $tracer = new ZipkinTracer($serviceName, $host, $port, $usesTraceId128bits, $requestTimeout, $reporter);
+        $tracer = new ZipkinTracer($serviceName, $host, $port, $usesTraceId128bits, $requestTimeout, $reporter, $sampler);
         $tracer->init();
 
         return $tracer;

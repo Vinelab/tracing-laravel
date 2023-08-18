@@ -97,6 +97,8 @@ return [
             'max_tag_len' => 1048576,
             'request_timeout' => 5,
         ],
+        'sampler_class' => \Zipkin\Samplers\BinarySampler::class,
+        'percentage_sampler_rate' => env('ZIPKIN_PERCENTAGE_SAMPLER_RATE', 0.2),
     ],
 
 ];

@@ -3,6 +3,7 @@
 namespace Vinelab\Tracing\Tests\Zipkin;
 
 use Carbon\Carbon;
+use Closure;
 use Google\Cloud\PubSub\Message;
 use GuzzleHttp\Psr7\Request as PsrRequest;
 use Illuminate\Http\Request;
@@ -16,10 +17,51 @@ use Vinelab\Tracing\Drivers\Zipkin\ZipkinTracer;
 use Vinelab\Tracing\Propagation\Formats;
 use Vinelab\Tracing\Tests\Fixtures\NoopReporter;
 use Zipkin\Propagation\TraceContext;
+use Zipkin\Recording\Span;
+use Zipkin\Samplers\BinarySampler;
+use Zipkin\Samplers\PercentageSampler;
 
 class TracerTest extends TestCase
 {
     use InteractsWithZipkin;
+
+    /** @test */
+    public function create_tracer_with_BinarySampler()
+    {
+        $reporter = Mockery::spy(NoopReporter::class);
+
+        $sampler = BinarySampler::createAsAlwaysSample();
+
+        $tracer = $this->createTracer($reporter, 'orders', '192.88.105.145', 9444, 5, false, $sampler);
+
+        $this->assertSpan($reporter, $tracer);
+    }
+
+    /** @test  */
+    public function create_tracer_with_PercentageSampler_1_rate()
+    {
+        $reporter = Mockery::spy(NoopReporter::class);
+
+        $sampler = PercentageSampler::create(1);
+
+        $tracer = $this->createTracer($reporter, 'orders', '192.88.105.145', 9444, 5, false, $sampler);
+
+        $this->assertSpan($reporter, $tracer);
+    }
+
+    /** @test  */
+    public function create_tracer_with_PercentageSampler_0_rate()
+    {
+        $reporter = Mockery::spy(NoopReporter::class);
+
+        $sampler = PercentageSampler::create(0);
+
+        $tracer = $this->createTracer($reporter, 'orders', '192.88.105.145', 9444, 5, false, $sampler);
+
+        $this->assertSpan($reporter, $tracer,function ($spans){
+            $this->assertEmpty($spans);
+        });
+    }
 
     /** @test */
     public function configure_reporter()
@@ -361,5 +403,37 @@ class TracerTest extends TestCase
     {
         $this->assertNotNull($spanContext);
         $this->assertInstanceOf(TraceContext::class, $spanContext->getRawContext());
+    }
+
+    protected function assertSpan($reporter, ZipkinTracer $tracer, Closure $assert = null)
+    {
+        $startTimestamp = intval(microtime(true) * 1000000);
+        $span = $tracer->startSpan('Http Request', null, $startTimestamp);
+        $span->setName('Create Order');
+        $span->tag('request_path', 'api/orders');
+        $span->annotate('Create Payment');
+        $span->annotate('Update Order Status');
+        $finishTimestamp = intval(microtime(true) * 1000000);
+        $span->finish($finishTimestamp);
+        $tracer->flush();
+
+        if (!$assert) {
+            $assert = function ($spans) use ($startTimestamp, $finishTimestamp) {
+                /** @var Span $span */
+                $span = $this->shiftSpan($spans);
+                $this->assertEquals('Create Order', $span->getName());
+                $this->assertEquals($finishTimestamp - $startTimestamp, $span->getDuration());
+                $this->assertEquals('api/orders', Arr::get($span->getTags(), 'request_path'));
+                $this->assertEquals('Create Payment', Arr::get($span->getAnnotations(), '0.value'));
+                $this->assertEquals('Update Order Status', Arr::get($span->getAnnotations(), '1.value'));
+            };
+        }
+
+        $reporter->shouldHaveReceived('report')->with(
+            Mockery::on(function ($spans) use ($assert) {
+                $assert($spans);
+                return true;
+            })
+        );
     }
 }
