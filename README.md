@@ -186,6 +186,17 @@ You can log additional data between span start and finish. For example, `annotat
 $span->annotate('Order Validated')
 ```
 
+### PercentageSampler
+
+Use `PercentageSampler` to control the upload of samples according to the sampling rate and reduce data reporting
+
+- Adding configuration to `.env`,Reporting rate `0 ~ 1`, `0.2` 20% data reporting
+- ZIPKIN_SAMPLER_CLASS support `"Zipkin\\Samplers\\BinarySampler"`、`"Zipkin\\Samplers\\PercentageSampler"` `"Zipkin\\Samplers\\BinarySampler"` representative upload all
+```bash
+ZIPKIN_SAMPLER_CLASS="Zipkin\\Samplers\\PercentageSampler"
+ZIPKIN_PERCENTAGE_SAMPLER_RATE=0.2
+```
+
 ## Flushing Spans
 
 Flush refers to the process of sending all pending spans to the transport. It will also reset the state of the tracer including the active spans and UUID:

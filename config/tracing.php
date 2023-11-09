@@ -1,5 +1,7 @@
 <?php
 
+use Zipkin\Samplers\BinarySampler;
+
 return [
 
     /*
@@ -97,7 +99,7 @@ return [
             'max_tag_len' => 1048576,
             'request_timeout' => 5,
         ],
-        'sampler_class' => \Zipkin\Samplers\BinarySampler::class,
+        'sampler_class' => env('ZIPKIN_SAMPLER_CLASS', BinarySampler::class),
         'percentage_sampler_rate' => env('ZIPKIN_PERCENTAGE_SAMPLER_RATE', 0.2),
     ],
 
