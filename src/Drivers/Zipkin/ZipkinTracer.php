@@ -70,6 +70,11 @@ class ZipkinTracer implements Tracer
     protected $reporter;
 
     /**
+     * @var Sampler|null
+     */
+    protected $sampler;
+
+    /**
      * @var \Zipkin\DefaultTracing|\Zipkin\Tracing
      */
     protected $tracing;
@@ -107,6 +112,7 @@ class ZipkinTracer implements Tracer
      * @param  bool|null  $usesTraceId128bits
      * @param  int|null  $requestTimeout
      * @param  Reporter|null  $reporter
+     * @param  Sampler|null  $sampler
      */
     public function __construct(
         string $serviceName,
@@ -114,7 +120,8 @@ class ZipkinTracer implements Tracer
         int $port,
         ?bool $usesTraceId128bits = false,
         ?int $requestTimeout = 5,
-        ?Reporter $reporter = null
+        ?Reporter $reporter = null,
+        ?Sampler $sampler = null
     ) {
         $this->serviceName = $serviceName;
         $this->host = $host;
@@ -122,6 +129,7 @@ class ZipkinTracer implements Tracer
         $this->usesTraceId128bits = $usesTraceId128bits;
         $this->requestTimeout = $requestTimeout;
         $this->reporter = $reporter;
+        $this->sampler = $sampler;
     }
 
     /**
@@ -320,7 +328,7 @@ class ZipkinTracer implements Tracer
     protected function createReporter(): Reporter
     {
         if (!$this->reporter) {
-            return new HttpReporter([
+            $this->reporter = new HttpReporter([
                 'endpoint_url' => sprintf('http://%s:%s/api/v2/spans', $this->host, $this->port),
                 'timeout' => $this->requestTimeout,
             ]);
@@ -348,7 +356,11 @@ class ZipkinTracer implements Tracer
      */
     protected function createSampler(): Sampler
     {
-        return BinarySampler::createAsAlwaysSample();
+        if (!$this->sampler) {
+            $this->sampler = BinarySampler::createAsAlwaysSample();
+        }
+
+        return $this->sampler;
     }
 
     protected function registerDefaultExtractionFormats(): void
