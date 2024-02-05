@@ -181,11 +181,15 @@ class ZipkinTracer implements Tracer
      * @param string $name
      * @param SpanContext|null $spanContext
      * @param int|null $timestamp  intval(microtime(true) * 1000000)
+     * @param string|null $kind
      * @return Span
      */
-    public function startSpan(string $name, ?SpanContext $spanContext = null, ?int $timestamp = null): Span
+    public function startSpan(string $name, ?SpanContext $spanContext = null, ?int $timestamp = null, ?string $kind = null): Span
     {
         $rawSpan = $this->tracing->getTracer()->nextSpan($spanContext ? $spanContext->getRawContext() : null);
+        if ($kind) {
+            $rawSpan->setKind($kind);
+        }
 
         if ($this->rootSpan) {
             $span = new ZipkinSpan($rawSpan, false);
