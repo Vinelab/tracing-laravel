@@ -49,7 +49,7 @@ class TraceRequests
         if (!$this->shouldBeExcluded($request->path())) {
             $spanContext = $this->tracer->extract($request, Formats::ILLUMINATE_HTTP);
 
-            $span = $this->tracer->startSpan('Http Request', $spanContext);
+            $span = $this->tracer->startSpan('Http Request', $spanContext, null, \Zipkin\Kind\SERVER);
 
             $this->tagRequestData($span, $request);
         }
