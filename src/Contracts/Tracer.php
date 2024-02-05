@@ -14,9 +14,10 @@ interface Tracer
      * @param string $name
      * @param SpanContext|null $spanContext
      * @param int|null $timestamp  intval(microtime(true) * 1000000)
+     * @param string|null $kind
      * @return Span
      */
-    public function startSpan(string $name, SpanContext $spanContext = null, ?int $timestamp = null, $kind = null): Span;
+    public function startSpan(string $name, SpanContext $spanContext = null, ?int $timestamp = null, ?string $kind = null): Span;
 
     /**
      * Retrieve the root span of the service
